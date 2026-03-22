@@ -273,21 +273,28 @@
             <button onclick="closeDetail()" class="text-xs uppercase tracking-widest mb-12 flex items-center hover:text-gray-400 transition">
                 ← Zurück zur Übersicht
             </button>
-            <div class="text-center mb-16">
+            <div class="text-center mb-12 md:mb-16">
                 <div id="detail-status" class="mb-4"></div>
-                <h2 id="detail-title" class="text-3xl md:text-5xl serif mb-6 leading-tight"></h2>
+                <h2 id="detail-title" class="text-2xl md:text-4xl serif mb-6 leading-tight max-w-4xl mx-auto"></h2>
                 <p id="detail-description" class="text-gray-600 leading-relaxed max-w-2xl mx-auto mb-8"></p>
-                <div class="flex justify-center">
+                <div id="detail-extended" class="hidden text-left text-sm text-gray-700 leading-relaxed max-w-3xl mx-auto space-y-5 mb-10"></div>
+                <div id="detail-download-wrap" class="flex justify-center">
                     <a id="detail-download" href="#" class="inline-block text-xs uppercase tracking-widest border border-black px-10 py-4 hover:bg-black hover:text-white transition">
                         Arbeit herunterladen (PDF)
                     </a>
                 </div>
             </div>
-            <div class="w-full bg-gray-50 border border-gray-200 rounded shadow-inner overflow-hidden min-h-[600px] flex items-center justify-center text-center p-12">
-                <div>
-                    <div class="text-[10px] uppercase tracking-widest text-gray-400 mb-4">Dokumentenvorschau</div>
-                    <div class="w-20 h-[1px] bg-gray-200 mx-auto mb-6"></div>
-                    <p class="serif italic text-gray-400 max-w-sm mx-auto">In der Live-Umgebung wird hier das Dokument eingebettet.</p>
+            <div id="detail-preview-wrap" class="w-full bg-gray-50 border border-gray-200 rounded shadow-inner overflow-hidden min-h-[520px]">
+                <div id="detail-preview-placeholder" class="min-h-[520px] flex items-center justify-center text-center p-12">
+                    <div>
+                        <div class="text-[10px] uppercase tracking-widest text-gray-400 mb-4">Dokumentenvorschau</div>
+                        <div class="w-20 h-[1px] bg-gray-200 mx-auto mb-6"></div>
+                        <p id="detail-preview-hint" class="serif italic text-gray-400 max-w-sm mx-auto">In der Live-Umgebung wird hier das Dokument eingebettet.</p>
+                    </div>
+                </div>
+                <div id="detail-pdf-frame-wrap" class="hidden p-4 md:p-6 bg-stone-100/80">
+                    <p id="detail-pdf-label" class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Dokumentenvorschau</p>
+                    <iframe id="detail-pdf-iframe" class="w-full min-h-[70vh] md:min-h-[75vh] border border-gray-200 rounded bg-white shadow-sm" title="PDF-Vorschau"></iframe>
                 </div>
             </div>
 
@@ -392,19 +399,27 @@
                 <h2 class="text-2xl uppercase tracking-widest font-light">Aktuelle Arbeiten</h2>
             </div>
             <div class="grid gap-12">
-                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('paulus-fruehchristentum', 'Die Rolle von Paulus im frühen Christentum', 'Soziologische Re-Evaluation der Korintherbriefe.', 'Veröffentlicht')">
-                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Januar 2026</div>
+                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('matthaeus-judentum', 'Eine Analyse der Darstellung jüdischer Gruppierungen im ersten Evangelium', '', 'Manuskript')">
+                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">2026</div>
                     <div class="md:col-span-2">
-                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors">„Die Rolle von Paulus im frühen Christentum“</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Eine soziologische Re-Evaluation der Korintherbriefe.</p>
+                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors leading-snug">Eine Analyse der Darstellung jüdischer Gruppierungen im ersten Evangelium</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed">Matthäusevangelium, narrative Polemik und das Verhältnis von innerjüdischer Auseinandersetzung zu Wirkungsgeschichte.</p>
                     </div>
                     <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
                 </div>
-                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('johannes-textvarianten', 'Textvarianten im Johannesevangelium', 'Analyse der Papyri-Funde des 2. Jahrhunderts.', 'Manuskript')">
-                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Februar 2026</div>
+                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('taufe-jesu-synoptisch', 'Die Taufe Jesu und ihre mythologische Entwicklung', '', 'Manuskript')">
+                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">2026</div>
                     <div class="md:col-span-2">
-                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors">„Textvarianten im Johannesevangelium“</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Analyse der Papyri-Funde des 2. Jahrhunderts.</p>
+                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors leading-snug">Die Taufe Jesu und ihre mythologische Entwicklung</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed">Synoptischer Vergleich und außerkanonische Rezeption der Tauf- und Versuchungstradition.</p>
+                    </div>
+                    <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
+                </div>
+                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('lukas-identitaet-sendung', 'Identität und Sendung Jesu im lukanischen Kontext', '', 'Manuskript')">
+                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">2026</div>
+                    <div class="md:col-span-2">
+                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors leading-snug">Identität und Sendung Jesu im lukanischen Kontext</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed">Transformation der markinischen Vorlage in Tauferzählung und Erlösungslehre des Lukasevangeliums.</p>
                     </div>
                     <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
                 </div>

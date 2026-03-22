@@ -27,8 +27,9 @@ create policy "work_comments_insert_anon"
   with check (
     work_id in (
       'markus-historisch',
-      'paulus-fruehchristentum',
-      'johannes-textvarianten'
+      'matthaeus-judentum',
+      'taufe-jesu-synoptisch',
+      'lukas-identitaet-sendung'
     )
     and length(trim(body)) >= 1
     and length(body) <= 4000

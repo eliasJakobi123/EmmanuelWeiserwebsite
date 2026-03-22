@@ -64,23 +64,42 @@
             z-index: 100;
             overflow-y: auto;
         }
+        #comment-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 120;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 1.5rem;
+            padding-top: 4rem;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.45);
+        }
+        #comment-modal.is-open {
+            display: flex;
+        }
+        .comment-card {
+            border-left: 2px solid #e5e5e5;
+            padding-left: 1rem;
+            margin-top: 1rem;
+        }
+        .comment-replies {
+            margin-left: 0.5rem;
+            margin-top: 0.75rem;
+        }
         .hero-bg {
             background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=2000');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
-        /* Zentrierter Fokus auf die Finger der Erschaffung Adams */
-        .creation-of-adam-bg {
-            background-color: #000000; 
-            /* Helleres Gradient-Overlay in der Mitte, um die Finger sichtbarer zu machen */
-            background-image: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.9) 70%), url('https://upload.wikimedia.org/wikipedia/commons/5/5b/Michelangelo_-_Creation_of_Adam_%28cropped%29.jpg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            /* Zentriert das Bild horizontal und vertikal */
-            background-position: center center; 
-            background-attachment: fixed;
-            position: relative;
+        /* Akademischer-Ansatz: volle Breite, Sektionshöhe = Bildhöhe */
+        .statement-hero-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: brightness(0.22);
         }
         .profile-img-container {
             background-color: #f5f5f5;
@@ -138,6 +157,34 @@
                     <p class="serif italic text-gray-400 max-w-sm mx-auto">In der Live-Umgebung wird hier das Dokument eingebettet.</p>
                 </div>
             </div>
+
+            <input type="hidden" id="detail-work-id" value="">
+
+            <div id="comments-section-wrap" class="mt-20 pt-12 border-t border-gray-200 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                    <h3 class="text-lg uppercase tracking-widest font-light">Kommentare</h3>
+                    <button type="button" id="btn-add-comment" class="text-xs uppercase tracking-widest border border-black px-6 py-3 hover:bg-black hover:text-white transition">
+                        Kommentar hinzufügen
+                    </button>
+                </div>
+                <p id="comments-status" class="text-sm text-gray-500 mb-6 hidden"></p>
+                <div id="comments-list" class="space-y-6 text-left"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kommentar-Modal -->
+    <div id="comment-modal" role="dialog" aria-modal="true" aria-labelledby="comment-modal-heading">
+        <div class="bg-white w-full max-w-md shadow-2xl border border-gray-100 p-8 relative">
+            <h3 id="comment-modal-heading" class="text-lg serif mb-6">Kommentar hinzufügen</h3>
+            <label class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2">Name <span class="font-normal normal-case text-gray-400">(optional — leer = Anonym)</span></label>
+            <input type="text" id="comment-modal-name" maxlength="80" autocomplete="nickname" class="w-full border border-gray-200 px-4 py-3 text-sm mb-6 focus:outline-none focus:border-black" placeholder="z. B. Leser*in">
+            <label class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2">Kommentar</label>
+            <textarea id="comment-modal-text" rows="5" maxlength="4000" required class="w-full border border-gray-200 px-4 py-3 text-sm mb-8 focus:outline-none focus:border-black resize-y min-h-[120px]" placeholder="Ihr Text …"></textarea>
+            <div class="flex flex-wrap gap-3">
+                <button type="button" id="comment-modal-submit" class="text-xs uppercase tracking-widest bg-black text-white px-8 py-3 hover:bg-stone-800 transition">Senden</button>
+                <button type="button" id="comment-modal-cancel" class="text-xs uppercase tracking-widest border border-gray-300 px-8 py-3 hover:border-black transition">Abbrechen</button>
+            </div>
         </div>
     </div>
 
@@ -178,14 +225,14 @@
     <!-- Aktueller Fokus -->
     <section id="current-project" class="py-24 px-6 bg-white border-y border-stone-100">
         <div class="max-w-4xl mx-auto">
-            <h2 class="text-xs uppercase tracking-[0.3em] text-gray-500 mb-8 font-semibold">Aktueller Fokus</h2>
+            <h2 class="text-2xl uppercase tracking-widest font-light mb-8">Aktueller Fokus</h2>
             <div class="grid md:grid-cols-3 gap-12">
                 <div class="md:col-span-2">
                     <h3 class="text-3xl md:text-4xl mb-6 serif leading-snug">Untersuchung zur historischen Zuverlässigkeit des Markus-Evangeliums</h3>
                     <p class="text-gray-700 leading-relaxed mb-8">
                         Dieses Projekt widmet sich der Analyse narrativer Strukturen im Markusevangelium. Im Zentrum steht die Frage nach der literarischen Verflechtung von theologischer Deutung und historischem Bericht.
                     </p>
-                    <button onclick="openDetail('Untersuchung zur historischen Zuverlässigkeit des Markus-Evangeliums', 'Detaillierte Analyse narrativer Strukturen im Markusevangelium.', 'In Bearbeitung')" class="text-xs uppercase tracking-widest font-bold border-b-2 border-black pb-1 hover:text-gray-400 hover:border-gray-400 transition duration-300">
+                    <button onclick="openDetail('markus-historisch', 'Untersuchung zur historischen Zuverlässigkeit des Markus-Evangeliums', 'Detaillierte Analyse narrativer Strukturen im Markusevangelium.', 'In Bearbeitung')" class="text-xs uppercase tracking-widest font-bold border-b-2 border-black pb-1 hover:text-gray-400 hover:border-gray-400 transition duration-300">
                         Projektdetails einsehen
                     </button>
                 </div>
@@ -211,7 +258,7 @@
                 <span class="text-[10px] text-gray-400 uppercase tracking-widest">Stand: 2024</span>
             </div>
             <div class="grid gap-12">
-                <div class="group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('Die Rolle von Paulus im frühen Christentum', 'Soziologische Re-Evaluation der Korintherbriefe.', 'Veröffentlicht')">
+                <div class="group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('paulus-fruehchristentum', 'Die Rolle von Paulus im frühen Christentum', 'Soziologische Re-Evaluation der Korintherbriefe.', 'Veröffentlicht')">
                     <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Januar 2024</div>
                     <div class="md:col-span-2">
                         <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors">„Die Rolle von Paulus im frühen Christentum“</h4>
@@ -219,7 +266,7 @@
                     </div>
                     <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
                 </div>
-                <div class="group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('Textvarianten im Johannesevangelium', 'Analyse der Papyri-Funde des 2. Jahrhunderts.', 'Manuskript')">
+                <div class="group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('johannes-textvarianten', 'Textvarianten im Johannesevangelium', 'Analyse der Papyri-Funde des 2. Jahrhunderts.', 'Manuskript')">
                     <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Februar 2024</div>
                     <div class="md:col-span-2">
                         <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors">„Textvarianten im Johannesevangelium“</h4>
@@ -251,29 +298,34 @@
                     <div class="loader"></div>
                     <img alt="Portrait Emmanuel Weiser" 
                          class="profile-img"
-                         src="/1000375309.jpg"
+                         src="/emmanuelwebsitebild1.jpg"
                          onerror="handleImageError(this)">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Akademisches Statement - Finger nun präzise zentriert -->
-    <section id="about" class="py-32 md:py-48 creation-of-adam-bg text-stone-100 px-6 overflow-hidden">
-        <div class="max-w-4xl mx-auto text-center relative z-10">
-            <h2 class="text-xs uppercase tracking-[0.4em] text-stone-300 mb-10 font-semibold">Akademischer Ansatz</h2>
-            <div class="space-y-6">
-                <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-white drop-shadow-2xl">
-                    Was sie dachten, ist verloren.
-                </p>
-                <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-white drop-shadow-2xl">
-                    Was bleibt, ist Text.
-                </p>
-                <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-stone-300 drop-shadow-2xl">
-                    Was zählt, ist Rekonstruktion.
-                </p>
+    <!-- Akademisches Statement: Bild volle Breite, Sektion = Bildproportion -->
+    <section id="about" class="relative text-stone-100 overflow-hidden w-full">
+        <div class="relative w-full">
+            <img src="/emmanuelswebsitebild2.jpeg" alt="" class="statement-hero-img max-w-none" decoding="async" fetchpriority="low">
+            <div class="absolute inset-0 flex items-center justify-center px-6 py-16 md:py-20 lg:py-24">
+                <div class="max-w-4xl mx-auto text-center relative z-10">
+                    <h2 class="text-xs uppercase tracking-[0.4em] text-stone-300 mb-10 font-semibold">Akademischer Ansatz</h2>
+                    <div class="space-y-6">
+                        <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-white drop-shadow-2xl">
+                            Was sie dachten, ist verloren.
+                        </p>
+                        <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-white drop-shadow-2xl">
+                            Was bleibt, ist Text.
+                        </p>
+                        <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-stone-300 drop-shadow-2xl">
+                            Was zählt, ist Rekonstruktion.
+                        </p>
+                    </div>
+                    <div class="w-10 h-[1px] bg-white/20 mx-auto mt-12"></div>
+                </div>
             </div>
-            <div class="w-10 h-[1px] bg-white/20 mx-auto mt-12"></div>
         </div>
     </section>
 
@@ -299,23 +351,172 @@
     </footer>
 
     <script>
+        const COMMENT_WORK_IDS = new Set(['paulus-fruehchristentum', 'johannes-textvarianten']);
+        let commentReplyParentId = null;
+
         function handleImageError(element) {
             element.src = 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&q=80&w=800';
         }
 
-        function openDetail(title, description, status) {
+        function escapeHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s == null ? '' : String(s);
+            return d.innerHTML;
+        }
+
+        function formatCommentDate(iso) {
+            try {
+                return new Date(iso).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
+            } catch {
+                return '';
+            }
+        }
+
+        function openDetail(workId, title, description, status) {
+            document.getElementById('detail-work-id').value = workId;
             document.getElementById('detail-title').innerText = title;
             document.getElementById('detail-description').innerText = description;
-            document.getElementById('detail-status').innerHTML = `<span class="status-badge border-stone-200 text-stone-500">${status}</span>`;
+            document.getElementById('detail-status').innerHTML = `<span class="status-badge border-stone-200 text-stone-500">${escapeHtml(status)}</span>`;
             document.getElementById('detail-view').style.display = 'block';
-            document.body.style.overflow = 'hidden'; 
+            document.body.style.overflow = 'hidden';
             window.scrollTo({ top: 0 });
+
+            const wrap = document.getElementById('comments-section-wrap');
+            if (COMMENT_WORK_IDS.has(workId)) {
+                wrap.classList.remove('hidden');
+                loadComments();
+            } else {
+                wrap.classList.add('hidden');
+            }
         }
 
         function closeDetail() {
+            closeCommentModal();
             document.getElementById('detail-view').style.display = 'none';
             document.body.style.overflow = 'auto';
         }
+
+        function renderCommentBranch(c) {
+            const article = document.createElement('article');
+            article.className = 'comment-card';
+            const meta = document.createElement('div');
+            meta.className = 'flex flex-wrap items-baseline gap-2 text-sm';
+            meta.innerHTML = '<span class="font-semibold text-black">' + escapeHtml(c.authorLabel) + '</span><time class="text-xs text-gray-400">' + escapeHtml(formatCommentDate(c.createdAt)) + '</time>';
+            const p = document.createElement('p');
+            p.className = 'text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap';
+            p.textContent = c.body;
+            const replyBtn = document.createElement('button');
+            replyBtn.type = 'button';
+            replyBtn.className = 'mt-3 text-[10px] uppercase tracking-widest text-stone-500 hover:text-black';
+            replyBtn.textContent = 'Antworten';
+            replyBtn.addEventListener('click', function () {
+                openCommentModal(c.id);
+            });
+            article.appendChild(meta);
+            article.appendChild(p);
+            article.appendChild(replyBtn);
+            if (c.replies && c.replies.length) {
+                const repliesWrap = document.createElement('div');
+                repliesWrap.className = 'comment-replies space-y-4';
+                c.replies.forEach(function (r) {
+                    repliesWrap.appendChild(renderCommentBranch(r));
+                });
+                article.appendChild(repliesWrap);
+            }
+            return article;
+        }
+
+        async function loadComments() {
+            const workId = document.getElementById('detail-work-id').value;
+            const list = document.getElementById('comments-list');
+            const statusEl = document.getElementById('comments-status');
+            list.innerHTML = '';
+            statusEl.classList.add('hidden');
+            statusEl.textContent = '';
+            try {
+                const r = await fetch('/api/comments?workId=' + encodeURIComponent(workId));
+                const data = await r.json().catch(function () { return {}; });
+                if (!r.ok) {
+                    if (r.status === 503) {
+                        statusEl.textContent = 'Kommentare: Bitte in Vercel die Umgebungsvariable DATABASE_URL setzen (kostenloses Postgres bei neon.tech). Lokal: Projekt mit `npx vercel dev` starten und .env mit DATABASE_URL anlegen.';
+                    } else {
+                        statusEl.textContent = 'Kommentare konnten nicht geladen werden.';
+                    }
+                    statusEl.classList.remove('hidden');
+                    return;
+                }
+                if (!data.comments || data.comments.length === 0) {
+                    list.innerHTML = '<p class="text-sm text-gray-400 italic">Noch keine Kommentare.</p>';
+                    return;
+                }
+                data.comments.forEach(function (c) {
+                    list.appendChild(renderCommentBranch(c));
+                });
+            } catch (e) {
+                statusEl.textContent = 'Kommentare sind hier nicht erreichbar (Netzwerk oder kein API-Server). Tipp: `npx vercel dev` statt nur `npm run dev`.';
+                statusEl.classList.remove('hidden');
+            }
+        }
+
+        function openCommentModal(parentId) {
+            commentReplyParentId = parentId || null;
+            const modal = document.getElementById('comment-modal');
+            const h = document.getElementById('comment-modal-heading');
+            h.textContent = commentReplyParentId ? 'Antwort schreiben' : 'Kommentar hinzufügen';
+            document.getElementById('comment-modal-text').value = '';
+            document.getElementById('comment-modal-name').value = '';
+            modal.classList.add('is-open');
+            document.getElementById('comment-modal-text').focus();
+        }
+
+        function closeCommentModal() {
+            document.getElementById('comment-modal').classList.remove('is-open');
+            commentReplyParentId = null;
+        }
+
+        async function submitComment() {
+            const workId = document.getElementById('detail-work-id').value;
+            const text = document.getElementById('comment-modal-text').value.trim();
+            const name = document.getElementById('comment-modal-name').value.trim();
+            if (!text) return;
+            const btn = document.getElementById('comment-modal-submit');
+            btn.disabled = true;
+            try {
+                const r = await fetch('/api/comments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        workId: workId,
+                        text: text,
+                        name: name,
+                        parentId: commentReplyParentId,
+                    }),
+                });
+                const data = await r.json().catch(function () { return null; });
+                if (!r.ok) {
+                    alert(data && data.error ? 'Senden fehlgeschlagen: ' + data.error : 'Senden fehlgeschlagen.');
+                    return;
+                }
+                closeCommentModal();
+                loadComments();
+            } catch (e) {
+                alert('Netzwerkfehler — bitte später erneut versuchen.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('btn-add-comment').addEventListener('click', function () {
+            openCommentModal(null);
+        });
+        document.getElementById('comment-modal-cancel').addEventListener('click', closeCommentModal);
+        document.getElementById('comment-modal-submit').addEventListener('click', submitComment);
+        document.getElementById('comment-modal').addEventListener('click', function (e) {
+            if (e.target === this) closeCommentModal();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeCommentModal();
+        });
 
         const observerOptions = { threshold: 0.1 };
         const observer = new IntersectionObserver((entries) => {

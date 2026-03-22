@@ -238,20 +238,37 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeCommentModal()
 })
 
-const observerOptions = { threshold: 0.1 }
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+const observerOptions = { threshold: 0.12, rootMargin: '0px 0px -5% 0px' }
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
       entry.target.classList.add('opacity-100', 'translate-y-0')
-      entry.target.classList.remove('opacity-0', 'translate-y-10')
+      entry.target.classList.remove('opacity-0', 'translate-y-8')
     }
   })
 }, observerOptions)
 
 document.querySelectorAll('section').forEach((section) => {
-  section.classList.add('section-fade', 'opacity-0', 'translate-y-10')
-  observer.observe(section)
+  if (prefersReducedMotion) {
+    section.classList.add('opacity-100', 'translate-y-0')
+  } else {
+    section.classList.add('section-fade', 'opacity-0', 'translate-y-8')
+    observer.observe(section)
+  }
 })
+
+;(function navScrollShadow() {
+  const nav = document.getElementById('site-nav')
+  if (!nav) return
+  const onScroll = () => {
+    if (window.scrollY > 16) nav.classList.add('nav--shadow')
+    else nav.classList.remove('nav--shadow')
+  }
+  onScroll()
+  window.addEventListener('scroll', onScroll, { passive: true })
+})()
 
 ;(function () {
   const btn = document.getElementById('mobile-menu-btn')

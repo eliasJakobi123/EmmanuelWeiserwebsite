@@ -124,6 +124,34 @@
             background-position: center;
             background-attachment: fixed;
         }
+        .hero-panel {
+            display: inline-block;
+            max-width: 42rem;
+            padding: 1.5rem 1.5rem 1.65rem;
+            text-align: center;
+            background: rgba(252, 251, 248, 0.68);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 2px;
+            box-shadow: 0 2px 16px -8px rgba(0, 0, 0, 0.2);
+        }
+        @media (min-width: 768px) {
+            .hero-panel {
+                padding: 1.75rem 2rem 1.85rem;
+            }
+        }
+        .hero-panel .hero-lead {
+            color: #111111;
+            font-size: 1.0625rem;
+            line-height: 1.68;
+            letter-spacing: 0.015em;
+            margin: 0;
+        }
+        @media (min-width: 768px) {
+            .hero-panel .hero-lead {
+                font-size: 1.3125rem;
+                line-height: 1.62;
+            }
+        }
         /* Akademischer-Ansatz: volle Breite, Sektionshöhe = Bildhöhe */
         .statement-hero-img {
             width: 100%;
@@ -175,9 +203,9 @@
                 transform: translate3d(0, 20px, 0);
                 animation: heroEnter 0.88s var(--motion-ease) forwards;
             }
-            .hero-animate-in:nth-child(1) { animation-delay: 0.06s; }
-            .hero-animate-in:nth-child(2) { animation-delay: 0.16s; }
-            .hero-animate-in:nth-child(4) { animation-delay: 0.38s; }
+            .hero-panel > .hero-animate-in:nth-child(1) { animation-delay: 0.06s; }
+            .hero-panel > .hero-animate-in:nth-child(2) { animation-delay: 0.16s; }
+            .hero-panel > .hero-animate-in:nth-child(4) { animation-delay: 0.38s; }
             .hero-line-grow {
                 transform: scaleX(0);
                 transform-origin: center;
@@ -318,12 +346,14 @@
     <!-- Hero Section -->
     <section id="home" class="hero-bg min-h-[80vh] flex items-center justify-center px-6">
         <div class="max-w-3xl mx-auto text-center pt-20">
-            <span class="hero-animate-in text-xs uppercase tracking-[0.4em] text-stone-500 mb-6 block font-light">Eigenständige Forschung</span>
-            <h1 class="hero-animate-in text-5xl md:text-7xl mb-8 leading-tight tracking-tight text-black">Emmanuel Weiser</h1>
-            <div class="hero-line-grow w-12 h-[1px] bg-black mx-auto mb-8"></div>
-            <p class="hero-animate-in text-xl text-black italic serif max-w-xl mx-auto leading-relaxed">
-                "Kritische Exegese und die Erschließung der Urchristlichen Texte in ihrem historischen Kontext."
-            </p>
+            <div class="hero-panel">
+                <span class="hero-animate-in text-xs uppercase tracking-[0.4em] text-stone-600 mb-5 block font-light">Eigenständige Forschung</span>
+                <h1 class="hero-animate-in text-5xl md:text-7xl mb-6 leading-tight tracking-tight text-black">Emmanuel Weiser</h1>
+                <div class="hero-line-grow w-12 h-[1px] bg-black mx-auto mb-6"></div>
+                <p class="hero-animate-in hero-lead italic serif">
+                    „Kritische Exegese und die Erschließung der Urchristlichen Texte in ihrem historischen Kontext.“
+                </p>
+            </div>
         </div>
     </section>
 

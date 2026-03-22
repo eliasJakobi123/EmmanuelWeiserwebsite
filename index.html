@@ -40,8 +40,18 @@
         .nav-link:hover::after {
             width: 100%;
         }
+        :root {
+            --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --motion-duration: 0.78s;
+        }
         .section-fade {
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            transition: opacity var(--motion-duration) var(--motion-ease),
+                transform var(--motion-duration) var(--motion-ease);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .section-fade {
+                transition-duration: 0.01ms !important;
+            }
         }
         .status-badge {
             display: inline-flex;
@@ -79,6 +89,22 @@
         }
         #comment-modal.is-open {
             display: flex;
+        }
+        #comment-modal .modal-panel {
+            transform: translate3d(0, 14px, 0) scale(0.985);
+            opacity: 0;
+            transition: opacity 0.38s var(--motion-ease), transform 0.38s var(--motion-ease);
+        }
+        #comment-modal.is-open .modal-panel {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #comment-modal .modal-panel {
+                transition: none;
+                opacity: 1;
+                transform: none;
+            }
         }
         .comment-card {
             border-left: 2px solid #e5e5e5;
@@ -134,6 +160,81 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        @keyframes heroEnter {
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+        @keyframes heroLineGrow {
+            to { transform: scaleX(1); }
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            .hero-animate-in {
+                opacity: 0;
+                transform: translate3d(0, 20px, 0);
+                animation: heroEnter 0.88s var(--motion-ease) forwards;
+            }
+            .hero-animate-in:nth-child(1) { animation-delay: 0.06s; }
+            .hero-animate-in:nth-child(2) { animation-delay: 0.16s; }
+            .hero-animate-in:nth-child(4) { animation-delay: 0.38s; }
+            .hero-line-grow {
+                transform: scaleX(0);
+                transform-origin: center;
+                animation: heroLineGrow 0.65s var(--motion-ease) 0.22s forwards;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-animate-in,
+            .hero-line-grow {
+                opacity: 1 !important;
+                transform: none !important;
+                animation: none !important;
+            }
+        }
+        .nav--shadow {
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 12px 36px -18px rgba(0, 0, 0, 0.14);
+        }
+        nav#site-nav {
+            transition: box-shadow 0.45s var(--motion-ease);
+        }
+        .hover-lift {
+            transition: transform 0.4s var(--motion-ease), box-shadow 0.4s var(--motion-ease);
+        }
+        @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+            .hover-lift:hover {
+                transform: translateY(-3px);
+            }
+        }
+        .img-hover-soft {
+            transition: transform 0.55s var(--motion-ease), filter 0.55s ease;
+        }
+        @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+            .img-hover-wrap:hover .img-hover-soft {
+                transform: scale(1.02);
+            }
+        }
+        #mobile-menu {
+            transition: opacity 0.3s var(--motion-ease), transform 0.3s var(--motion-ease);
+        }
+        #mobile-menu:not(.hidden) {
+            animation: menuIn 0.32s var(--motion-ease) forwards;
+        }
+        @keyframes menuIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #mobile-menu:not(.hidden) {
+                animation: none;
+            }
+        }
     </style>
 </head>
 <body class="bg-white">
@@ -179,7 +280,7 @@
 
     <!-- Kommentar-Modal -->
     <div id="comment-modal" role="dialog" aria-modal="true" aria-labelledby="comment-modal-heading">
-        <div class="bg-white w-full max-w-md shadow-2xl border border-gray-100 p-8 relative">
+        <div class="modal-panel bg-white w-full max-w-md shadow-2xl border border-gray-100 p-8 relative">
             <h3 id="comment-modal-heading" class="text-lg serif mb-6">Kommentar hinzufügen</h3>
             <label class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2">Name <span class="font-normal normal-case text-gray-400">(optional — leer = Anonym)</span></label>
             <input type="text" id="comment-modal-name" maxlength="80" autocomplete="nickname" class="w-full border border-gray-200 px-4 py-3 text-sm mb-6 focus:outline-none focus:border-black" placeholder="z. B. Leser*in">
@@ -193,7 +294,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="fixed w-full bg-white/90 backdrop-blur-sm z-50 border-b border-gray-100">
+    <nav id="site-nav" class="fixed w-full bg-white/90 backdrop-blur-sm z-50 border-b border-gray-100">
         <div class="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="logo-classic text-black">Emmanuel Weiser</div>
             <div class="hidden md:flex space-x-8 text-xs uppercase tracking-[0.2em]">
@@ -217,10 +318,10 @@
     <!-- Hero Section -->
     <section id="home" class="hero-bg min-h-[80vh] flex items-center justify-center px-6">
         <div class="max-w-3xl mx-auto text-center pt-20">
-            <span class="text-xs uppercase tracking-[0.4em] text-stone-500 mb-6 block font-light">Eigenständige Forschung</span>
-            <h1 class="text-5xl md:text-7xl mb-8 leading-tight tracking-tight text-black">Emmanuel Weiser</h1>
-            <div class="w-12 h-[1px] bg-black mx-auto mb-8"></div>
-            <p class="text-xl text-stone-700 italic serif max-w-xl mx-auto leading-relaxed">
+            <span class="hero-animate-in text-xs uppercase tracking-[0.4em] text-stone-500 mb-6 block font-light">Eigenständige Forschung</span>
+            <h1 class="hero-animate-in text-5xl md:text-7xl mb-8 leading-tight tracking-tight text-black">Emmanuel Weiser</h1>
+            <div class="hero-line-grow w-12 h-[1px] bg-black mx-auto mb-8"></div>
+            <p class="hero-animate-in text-xl text-black italic serif max-w-xl mx-auto leading-relaxed">
                 "Kritische Exegese und die Erschließung der Urchristlichen Texte in ihrem historischen Kontext."
             </p>
         </div>
@@ -261,7 +362,7 @@
                 <h2 class="text-2xl uppercase tracking-widest font-light">Aktuelle Arbeiten</h2>
             </div>
             <div class="grid gap-12">
-                <div class="group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('paulus-fruehchristentum', 'Die Rolle von Paulus im frühen Christentum', 'Soziologische Re-Evaluation der Korintherbriefe.', 'Veröffentlicht')">
+                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('paulus-fruehchristentum', 'Die Rolle von Paulus im frühen Christentum', 'Soziologische Re-Evaluation der Korintherbriefe.', 'Veröffentlicht')">
                     <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Januar 2026</div>
                     <div class="md:col-span-2">
                         <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors">„Die Rolle von Paulus im frühen Christentum“</h4>
@@ -269,7 +370,7 @@
                     </div>
                     <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
                 </div>
-                <div class="group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('johannes-textvarianten', 'Textvarianten im Johannesevangelium', 'Analyse der Papyri-Funde des 2. Jahrhunderts.', 'Manuskript')">
+                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('johannes-textvarianten', 'Textvarianten im Johannesevangelium', 'Analyse der Papyri-Funde des 2. Jahrhunderts.', 'Manuskript')">
                     <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Februar 2026</div>
                     <div class="md:col-span-2">
                         <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors">„Textvarianten im Johannesevangelium“</h4>
@@ -297,10 +398,10 @@
                     </a>
                     <p class="mt-6 text-[10px] text-gray-400 uppercase tracking-widest">Sichere Abwicklung via GoFundMe</p>
                 </div>
-                <div class="order-1 md:order-2 overflow-hidden rounded shadow-2xl profile-img-container">
+                <div class="img-hover-wrap order-1 md:order-2 overflow-hidden rounded shadow-2xl profile-img-container">
                     <div class="loader"></div>
                     <img alt="Portrait Emmanuel Weiser" 
-                         class="profile-img"
+                         class="profile-img img-hover-soft"
                          src="/emmanuelwebsitebild1.jpg"
                          onerror="handleImageError(this)">
                 </div>
@@ -317,7 +418,7 @@
                     <h2 class="text-xs uppercase tracking-[0.4em] text-stone-300 mb-10 font-semibold">Akademischer Ansatz</h2>
                     <div class="space-y-6">
                         <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-white drop-shadow-2xl">
-                            Was sie dachten, ist verloren.
+                            Was sie dachten, ist vergangen.
                         </p>
                         <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-white drop-shadow-2xl">
                             Was bleibt, ist Text.

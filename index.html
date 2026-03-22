@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emmanuel Weiser | Neutestamentliche Forschung</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3, .serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .logo-classic {
+            font-weight: 700;
+            text-transform: none;
+            letter-spacing: 0.05em;
+            font-size: 1.25rem;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: #000;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .section-fade {
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border: 1px solid currentColor;
+            border-radius: 2px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+        #detail-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        .hero-bg {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        /* Zentrierter Fokus auf die Finger der Erschaffung Adams */
+        .creation-of-adam-bg {
+            background-color: #000000; 
+            /* Helleres Gradient-Overlay in der Mitte, um die Finger sichtbarer zu machen */
+            background-image: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.9) 70%), url('https://upload.wikimedia.org/wikipedia/commons/5/5b/Michelangelo_-_Creation_of_Adam_%28cropped%29.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            /* Zentriert das Bild horizontal und vertikal */
+            background-position: center center; 
+            background-attachment: fixed;
+            position: relative;
+        }
+        .profile-img-container {
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            position: relative;
+        }
+        .profile-img {
+            filter: grayscale(100%) contrast(1.1);
+            transition: filter 0.5s ease;
+            object-fit: cover;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #333;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <!-- Detail Ansicht -->
+    <div id="detail-view" class="p-6 md:p-12">
+        <div class="max-w-4xl mx-auto">
+            <button onclick="closeDetail()" class="text-xs uppercase tracking-widest mb-12 flex items-center hover:text-gray-400 transition">
+                ← Zurück zur Übersicht
+            </button>
+            <div class="text-center mb-16">
+                <div id="detail-status" class="mb-4"></div>
+                <h2 id="detail-title" class="text-3xl md:text-5xl serif mb-6 leading-tight"></h2>
+                <p id="detail-description" class="text-gray-600 leading-relaxed max-w-2xl mx-auto mb-8"></p>
+                <div class="flex justify-center">
+                    <a id="detail-download" href="#" class="inline-block text-xs uppercase tracking-widest border border-black px-10 py-4 hover:bg-black hover:text-white transition">
+                        Arbeit herunterladen (PDF)
+                    </a>
+                </div>
+            </div>
+            <div class="w-full bg-gray-50 border border-gray-200 rounded shadow-inner overflow-hidden min-h-[600px] flex items-center justify-center text-center p-12">
+                <div>
+                    <div class="text-[10px] uppercase tracking-widest text-gray-400 mb-4">Dokumentenvorschau</div>
+                    <div class="w-20 h-[1px] bg-gray-200 mx-auto mb-6"></div>
+                    <p class="serif italic text-gray-400 max-w-sm mx-auto">In der Live-Umgebung wird hier das Dokument eingebettet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-sm z-50 border-b border-gray-100">
+        <div class="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo-classic text-black">Emmanuel Weiser</div>
+            <div class="hidden md:flex space-x-8 text-xs uppercase tracking-[0.2em]">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#current-project" class="nav-link">Forschung</a>
+                <a href="#works" class="nav-link">Arbeiten</a>
+                <a href="#support" class="nav-link font-semibold">Unterstützung</a>
+                <a href="#contact" class="nav-link">Kontakt</a>
+            </div>
+            <button type="button" id="mobile-menu-btn" class="md:hidden text-xs uppercase tracking-[0.2em] cursor-pointer hover:text-stone-500" aria-expanded="false" aria-controls="mobile-menu">Menü</button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white/95 px-6 py-4 space-y-4 text-xs uppercase tracking-[0.2em]">
+            <a href="#home" class="block nav-link">Home</a>
+            <a href="#current-project" class="block nav-link">Forschung</a>
+            <a href="#works" class="block nav-link">Arbeiten</a>
+            <a href="#support" class="block nav-link font-semibold">Unterstützung</a>
+            <a href="#contact" class="block nav-link">Kontakt</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-bg min-h-[80vh] flex items-center justify-center px-6">
+        <div class="max-w-3xl mx-auto text-center pt-20">
+            <span class="text-xs uppercase tracking-[0.4em] text-stone-500 mb-6 block font-light">Eigenständige Forschung</span>
+            <h1 class="text-5xl md:text-7xl mb-8 leading-tight tracking-tight">Emmanuel Weiser</h1>
+            <div class="w-12 h-[1px] bg-black mx-auto mb-8"></div>
+            <p class="text-xl text-stone-700 italic serif max-w-xl mx-auto leading-relaxed">
+                "Kritische Exegese und die Erschließung der Urchristlichen Texte in ihrem historischen Kontext."
+            </p>
+        </div>
+    </section>
+
+    <!-- Aktueller Fokus -->
+    <section id="current-project" class="py-24 px-6 bg-white border-y border-stone-100">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-xs uppercase tracking-[0.3em] text-gray-500 mb-8 font-semibold">Aktueller Fokus</h2>
+            <div class="grid md:grid-cols-3 gap-12">
+                <div class="md:col-span-2">
+                    <h3 class="text-3xl md:text-4xl mb-6 serif leading-snug">Untersuchung zur historischen Zuverlässigkeit des Markus-Evangeliums</h3>
+                    <p class="text-gray-700 leading-relaxed mb-8">
+                        Dieses Projekt widmet sich der Analyse narrativer Strukturen im Markusevangelium. Im Zentrum steht die Frage nach der literarischen Verflechtung von theologischer Deutung und historischem Bericht.
+                    </p>
+                    <button onclick="openDetail('Untersuchung zur historischen Zuverlässigkeit des Markus-Evangeliums', 'Detaillierte Analyse narrativer Strukturen im Markusevangelium.', 'In Bearbeitung')" class="text-xs uppercase tracking-widest font-bold border-b-2 border-black pb-1 hover:text-gray-400 hover:border-gray-400 transition duration-300">
+                        Projektdetails einsehen
+                    </button>
+                </div>
+                <div class="flex flex-col justify-start space-y-6 pt-2">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 block mb-2">Status</span>
+                        <span class="status-badge text-stone-600 border-stone-300">In Bearbeitung</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 block mb-2">Zeitraum</span>
+                        <span class="text-sm italic serif">2023 — 2025</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Neueste Arbeiten -->
+    <section id="works" class="py-24 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex items-baseline justify-between mb-16 border-b border-gray-100 pb-4">
+                <h2 class="text-2xl uppercase tracking-widest font-light">Aktuelle Arbeiten</h2>
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest">Stand: 2024</span>
+            </div>
+            <div class="grid gap-12">
+                <div class="group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('Die Rolle von Paulus im frühen Christentum', 'Soziologische Re-Evaluation der Korintherbriefe.', 'Veröffentlicht')">
+                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Januar 2024</div>
+                    <div class="md:col-span-2">
+                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors">„Die Rolle von Paulus im frühen Christentum“</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed">Eine soziologische Re-Evaluation der Korintherbriefe.</p>
+                    </div>
+                    <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
+                </div>
+                <div class="group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('Textvarianten im Johannesevangelium', 'Analyse der Papyri-Funde des 2. Jahrhunderts.', 'Manuskript')">
+                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Februar 2024</div>
+                    <div class="md:col-span-2">
+                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors">„Textvarianten im Johannesevangelium“</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed">Analyse der Papyri-Funde des 2. Jahrhunderts.</p>
+                    </div>
+                    <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Spendenaufruf Sektion mit Portrait -->
+    <section id="support" class="py-24 px-6 bg-stone-50 border-y border-stone-100">
+        <div class="max-w-5xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="order-2 md:order-1">
+                    <h2 class="text-xs uppercase tracking-[0.3em] text-gray-500 mb-8 font-semibold">Unterstützung der Forschung</h2>
+                    <div class="mb-4 italic serif text-gray-500 text-sm">Ein persönliches Anliegen</div>
+                    <h3 class="text-3xl serif mb-6">Wissenschaftliche Bildung fördern</h3>
+                    <p class="text-gray-600 leading-relaxed mb-10">
+                        Als 16-jähriger Schüler mit einer tiefen Leidenschaft für die neutestamentliche Exegese versuche ich, meine akademische Reise bereits frühzeitig zu professionalisieren. Um meine Forschung, den Erwerb von Fachliteratur und die Teilnahme an wissenschaftlichen Diskursen weiter voranzutreiben, bin ich für jede Form der Unterstützung dankbar.
+                    </p>
+                    <a href="https://gofund.me/0e411eae2" target="_blank" rel="noopener noreferrer" class="inline-block bg-black text-white text-xs uppercase tracking-widest px-10 py-4 hover:bg-stone-800 transition shadow-lg">
+                        Projekt unterstützen
+                    </a>
+                    <p class="mt-6 text-[10px] text-gray-400 uppercase tracking-widest">Sichere Abwicklung via GoFundMe</p>
+                </div>
+                <div class="order-1 md:order-2 overflow-hidden rounded shadow-2xl profile-img-container">
+                    <div class="loader"></div>
+                    <img alt="Portrait Emmanuel Weiser" 
+                         class="profile-img"
+                         src="1000375309.jpg"
+                         onerror="handleImageError(this)">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Akademisches Statement - Finger nun präzise zentriert -->
+    <section id="about" class="py-32 md:py-48 creation-of-adam-bg text-stone-100 px-6 overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <h2 class="text-xs uppercase tracking-[0.4em] text-stone-300 mb-10 font-semibold">Akademischer Ansatz</h2>
+            <div class="space-y-6">
+                <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-white drop-shadow-2xl">
+                    Was sie dachten, ist verloren.
+                </p>
+                <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-white drop-shadow-2xl">
+                    Was bleibt, ist Text.
+                </p>
+                <p class="text-2xl md:text-3xl lg:text-4xl serif italic leading-tight text-stone-300 drop-shadow-2xl">
+                    Was zählt, ist Rekonstruktion.
+                </p>
+            </div>
+            <div class="w-10 h-[1px] bg-white/20 mx-auto mt-12"></div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="py-24 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center md:text-left">
+                <h2 class="text-xs uppercase tracking-widest font-bold mb-8">Kontakt</h2>
+                <div class="space-y-6 text-sm text-gray-600">
+                    <p class="font-semibold text-black text-base">Emmanuel Weiser</p>
+                    <p class="leading-relaxed">Rheinfelsstr. 22<br>55469 Simmern</p>
+                    <p>E-Mail: <a href="mailto:emmanuelweiser@gmail.com" class="border-b border-gray-200 hover:border-black transition">emmanuelweiser@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 text-center bg-white border-t border-gray-100">
+        <p class="text-[10px] text-gray-400 uppercase tracking-[0.3em] font-light">
+            &copy; 2024 Emmanuel Weiser &mdash; Neutestamentliche Forschung
+        </p>
+    </footer>
+
+    <script>
+        function handleImageError(element) {
+            element.src = 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&q=80&w=800';
+        }
+
+        function openDetail(title, description, status) {
+            document.getElementById('detail-title').innerText = title;
+            document.getElementById('detail-description').innerText = description;
+            document.getElementById('detail-status').innerHTML = `<span class="status-badge border-stone-200 text-stone-500">${status}</span>`;
+            document.getElementById('detail-view').style.display = 'block';
+            document.body.style.overflow = 'hidden'; 
+            window.scrollTo({ top: 0 });
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-view').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        const observerOptions = { threshold: 0.1 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            section.classList.add('section-fade', 'opacity-0', 'translate-y-10');
+            observer.observe(section);
+        });
+
+        (function () {
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+            if (!btn || !menu) return;
+            btn.addEventListener('click', function () {
+                const open = menu.classList.toggle('hidden');
+                btn.setAttribute('aria-expanded', String(!open));
+            });
+            menu.querySelectorAll('a').forEach(function (a) {
+                a.addEventListener('click', function () {
+                    menu.classList.add('hidden');
+                    btn.setAttribute('aria-expanded', 'false');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

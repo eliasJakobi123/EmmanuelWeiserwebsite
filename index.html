@@ -89,7 +89,10 @@
             margin-top: 0.75rem;
         }
         .hero-bg {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=2000');
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.44), rgba(0, 0, 0, 0.44)),
+                linear-gradient(rgba(250, 248, 244, 0.6), rgba(250, 248, 244, 0.6)),
+                url('/emmanuelswebsitebild3.webp');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -214,7 +217,7 @@
     <section id="home" class="hero-bg min-h-[80vh] flex items-center justify-center px-6">
         <div class="max-w-3xl mx-auto text-center pt-20">
             <span class="text-xs uppercase tracking-[0.4em] text-stone-500 mb-6 block font-light">Eigenständige Forschung</span>
-            <h1 class="text-5xl md:text-7xl mb-8 leading-tight tracking-tight">Emmanuel Weiser</h1>
+            <h1 class="text-5xl md:text-7xl mb-8 leading-tight tracking-tight text-black">Emmanuel Weiser</h1>
             <div class="w-12 h-[1px] bg-black mx-auto mb-8"></div>
             <p class="text-xl text-stone-700 italic serif max-w-xl mx-auto leading-relaxed">
                 "Kritische Exegese und die Erschließung der Urchristlichen Texte in ihrem historischen Kontext."
@@ -253,9 +256,8 @@
     <!-- Neueste Arbeiten -->
     <section id="works" class="py-24 px-6">
         <div class="max-w-5xl mx-auto">
-            <div class="flex items-baseline justify-between mb-16 border-b border-gray-100 pb-4">
+            <div class="mb-16 border-b border-gray-100 pb-4">
                 <h2 class="text-2xl uppercase tracking-widest font-light">Aktuelle Arbeiten</h2>
-                <span class="text-[10px] text-gray-400 uppercase tracking-widest">Stand: 2024</span>
             </div>
             <div class="grid gap-12">
                 <div class="group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('paulus-fruehchristentum', 'Die Rolle von Paulus im frühen Christentum', 'Soziologische Re-Evaluation der Korintherbriefe.', 'Veröffentlicht')">
@@ -350,204 +352,6 @@
         </p>
     </footer>
 
-    <script>
-        const COMMENT_WORK_IDS = new Set(['paulus-fruehchristentum', 'johannes-textvarianten']);
-        let commentReplyParentId = null;
-
-        function handleImageError(element) {
-            element.src = 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&q=80&w=800';
-        }
-
-        function escapeHtml(s) {
-            const d = document.createElement('div');
-            d.textContent = s == null ? '' : String(s);
-            return d.innerHTML;
-        }
-
-        function formatCommentDate(iso) {
-            try {
-                return new Date(iso).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
-            } catch {
-                return '';
-            }
-        }
-
-        function openDetail(workId, title, description, status) {
-            document.getElementById('detail-work-id').value = workId;
-            document.getElementById('detail-title').innerText = title;
-            document.getElementById('detail-description').innerText = description;
-            document.getElementById('detail-status').innerHTML = `<span class="status-badge border-stone-200 text-stone-500">${escapeHtml(status)}</span>`;
-            document.getElementById('detail-view').style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            window.scrollTo({ top: 0 });
-
-            const wrap = document.getElementById('comments-section-wrap');
-            if (COMMENT_WORK_IDS.has(workId)) {
-                wrap.classList.remove('hidden');
-                loadComments();
-            } else {
-                wrap.classList.add('hidden');
-            }
-        }
-
-        function closeDetail() {
-            closeCommentModal();
-            document.getElementById('detail-view').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-
-        function renderCommentBranch(c) {
-            const article = document.createElement('article');
-            article.className = 'comment-card';
-            const meta = document.createElement('div');
-            meta.className = 'flex flex-wrap items-baseline gap-2 text-sm';
-            meta.innerHTML = '<span class="font-semibold text-black">' + escapeHtml(c.authorLabel) + '</span><time class="text-xs text-gray-400">' + escapeHtml(formatCommentDate(c.createdAt)) + '</time>';
-            const p = document.createElement('p');
-            p.className = 'text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap';
-            p.textContent = c.body;
-            const replyBtn = document.createElement('button');
-            replyBtn.type = 'button';
-            replyBtn.className = 'mt-3 text-[10px] uppercase tracking-widest text-stone-500 hover:text-black';
-            replyBtn.textContent = 'Antworten';
-            replyBtn.addEventListener('click', function () {
-                openCommentModal(c.id);
-            });
-            article.appendChild(meta);
-            article.appendChild(p);
-            article.appendChild(replyBtn);
-            if (c.replies && c.replies.length) {
-                const repliesWrap = document.createElement('div');
-                repliesWrap.className = 'comment-replies space-y-4';
-                c.replies.forEach(function (r) {
-                    repliesWrap.appendChild(renderCommentBranch(r));
-                });
-                article.appendChild(repliesWrap);
-            }
-            return article;
-        }
-
-        async function loadComments() {
-            const workId = document.getElementById('detail-work-id').value;
-            const list = document.getElementById('comments-list');
-            const statusEl = document.getElementById('comments-status');
-            list.innerHTML = '';
-            statusEl.classList.add('hidden');
-            statusEl.textContent = '';
-            try {
-                const r = await fetch('/api/comments?workId=' + encodeURIComponent(workId));
-                const data = await r.json().catch(function () { return {}; });
-                if (!r.ok) {
-                    if (r.status === 503) {
-                        statusEl.textContent = 'Kommentare: Bitte in Vercel die Umgebungsvariable DATABASE_URL setzen (kostenloses Postgres bei neon.tech). Lokal: Projekt mit `npx vercel dev` starten und .env mit DATABASE_URL anlegen.';
-                    } else {
-                        statusEl.textContent = 'Kommentare konnten nicht geladen werden.';
-                    }
-                    statusEl.classList.remove('hidden');
-                    return;
-                }
-                if (!data.comments || data.comments.length === 0) {
-                    list.innerHTML = '<p class="text-sm text-gray-400 italic">Noch keine Kommentare.</p>';
-                    return;
-                }
-                data.comments.forEach(function (c) {
-                    list.appendChild(renderCommentBranch(c));
-                });
-            } catch (e) {
-                statusEl.textContent = 'Kommentare sind hier nicht erreichbar (Netzwerk oder kein API-Server). Tipp: `npx vercel dev` statt nur `npm run dev`.';
-                statusEl.classList.remove('hidden');
-            }
-        }
-
-        function openCommentModal(parentId) {
-            commentReplyParentId = parentId || null;
-            const modal = document.getElementById('comment-modal');
-            const h = document.getElementById('comment-modal-heading');
-            h.textContent = commentReplyParentId ? 'Antwort schreiben' : 'Kommentar hinzufügen';
-            document.getElementById('comment-modal-text').value = '';
-            document.getElementById('comment-modal-name').value = '';
-            modal.classList.add('is-open');
-            document.getElementById('comment-modal-text').focus();
-        }
-
-        function closeCommentModal() {
-            document.getElementById('comment-modal').classList.remove('is-open');
-            commentReplyParentId = null;
-        }
-
-        async function submitComment() {
-            const workId = document.getElementById('detail-work-id').value;
-            const text = document.getElementById('comment-modal-text').value.trim();
-            const name = document.getElementById('comment-modal-name').value.trim();
-            if (!text) return;
-            const btn = document.getElementById('comment-modal-submit');
-            btn.disabled = true;
-            try {
-                const r = await fetch('/api/comments', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        workId: workId,
-                        text: text,
-                        name: name,
-                        parentId: commentReplyParentId,
-                    }),
-                });
-                const data = await r.json().catch(function () { return null; });
-                if (!r.ok) {
-                    alert(data && data.error ? 'Senden fehlgeschlagen: ' + data.error : 'Senden fehlgeschlagen.');
-                    return;
-                }
-                closeCommentModal();
-                loadComments();
-            } catch (e) {
-                alert('Netzwerkfehler — bitte später erneut versuchen.');
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        document.getElementById('btn-add-comment').addEventListener('click', function () {
-            openCommentModal(null);
-        });
-        document.getElementById('comment-modal-cancel').addEventListener('click', closeCommentModal);
-        document.getElementById('comment-modal-submit').addEventListener('click', submitComment);
-        document.getElementById('comment-modal').addEventListener('click', function (e) {
-            if (e.target === this) closeCommentModal();
-        });
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closeCommentModal();
-        });
-
-        const observerOptions = { threshold: 0.1 };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('opacity-100', 'translate-y-0');
-                    entry.target.classList.remove('opacity-0', 'translate-y-10');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('section').forEach(section => {
-            section.classList.add('section-fade', 'opacity-0', 'translate-y-10');
-            observer.observe(section);
-        });
-
-        (function () {
-            const btn = document.getElementById('mobile-menu-btn');
-            const menu = document.getElementById('mobile-menu');
-            if (!btn || !menu) return;
-            btn.addEventListener('click', function () {
-                const open = menu.classList.toggle('hidden');
-                btn.setAttribute('aria-expanded', String(!open));
-            });
-            menu.querySelectorAll('a').forEach(function (a) {
-                a.addEventListener('click', function () {
-                    menu.classList.add('hidden');
-                    btn.setAttribute('aria-expanded', 'false');
-                });
-            });
-        })();
-    </script>
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>

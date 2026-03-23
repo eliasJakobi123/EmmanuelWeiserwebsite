@@ -110,6 +110,13 @@ function blobAsPdf(blob) {
 /** @type {{ fetchUrl: string, fileName: string } | null} */
 let detailPdfDownload = null
 
+/** Einheitlicher Hinweis unter dem Abstract jeder Arbeit (Detailansicht). */
+const WORK_LEGAL_FOOTER_HTML = `
+<p class="pt-8 mt-8 border-t border-stone-200 text-[11px] text-stone-500 leading-relaxed">
+  Diese Arbeit ist urheberrechtlich geschützt. Vervielfältigung, Verbreitung oder öffentliche Wiedergabe — auch auszugsweise — nur mit Zustimmung des Urhebers.
+</p>
+`
+
 const TAUFFE_BODY_HTML = `
 <p class="text-sm text-stone-600 mb-4">Synoptischer Vergleich und außerkanonische Rezeption der Tauf- und Versuchungstradition</p>
 <p>Die Arbeit untersucht die Erzählung der Taufe Jesu und die direkt anschließende Versuchungsgeschichte als zentrales Motiv der frühchristlichen Identitätsbildung. Ausgehend vom Markusevangelium als ältestem Zeugnis wird analysiert, wie sich die Darstellung Jesu von einem initialen Berufungserlebnis hin zu einer hochgradig mythologisch aufgeladenen Legitimationsgeschichte entwickelt. Dabei steht die Frage im Vordergrund, wie die verschiedenen Autoren mit dem „historischen Problem“ umgehen, dass sich der sündlose Messias einer Bußtaufe durch Johannes unterzieht.</p>
@@ -159,27 +166,27 @@ const LUKAS_BODY_HTML = `
 /** Erweiterte Detailseiten: optional PDF-Vorschau + Download */
 const WORK_EXTENDED = {
   'matthaeus-judentum': {
-    bodyHtml: MATT_BODY_HTML,
+    bodyHtml: MATT_BODY_HTML + WORK_LEGAL_FOOTER_HTML,
     pdf: {
       path: PDF_PATH_MATT,
       fileName: 'AntijudaismusbeiMattheaus.pdf',
-      label: 'AntijudaismusbeiMattheaus.pdf',
+      label: 'Antijudaismus bei Mattheaus',
     },
   },
   'taufe-jesu-synoptisch': {
-    bodyHtml: TAUFFE_BODY_HTML,
+    bodyHtml: TAUFFE_BODY_HTML + WORK_LEGAL_FOOTER_HTML,
     pdf: {
       path: PDF_PATH_TAUFFE,
       fileName: 'DieTaufeJesu.pdf',
-      label: 'DieTaufeJesu.pdf',
+      label: 'Die Taufe Jesu',
     },
   },
   'lukas-identitaet-sendung': {
-    bodyHtml: LUKAS_BODY_HTML,
+    bodyHtml: LUKAS_BODY_HTML + WORK_LEGAL_FOOTER_HTML,
     pdf: {
       path: PDF_PATH_LUKAS,
       fileName: 'SoteriologieimEvangeliumnachLukas.pdf',
-      label: 'SoteriologieimEvangeliumnachLukas.pdf',
+      label: 'Soteriologie im Evangelium nach Lukas',
     },
   },
 }

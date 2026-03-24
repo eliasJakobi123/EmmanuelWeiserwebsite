@@ -1,5 +1,7 @@
 import { inject } from '@vercel/analytics'
 
+// Initialize Vercel Web Analytics
+// Automatically detects production/development based on environment
 inject()
 
 const COMMENT_WORK_IDS = new Set([

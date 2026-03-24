@@ -1,3 +1,7 @@
+import { inject } from '@vercel/analytics'
+
+inject()
+
 const COMMENT_WORK_IDS = new Set([
   'matthaeus-judentum',
   'taufe-jesu-synoptisch',

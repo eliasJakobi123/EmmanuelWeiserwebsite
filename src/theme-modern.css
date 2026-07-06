@@ -103,11 +103,14 @@
   max-width: 44rem;
   padding: 2.4rem 2.2rem 2.6rem;
   border-radius: var(--ew-radius-lg);
-  background: rgba(252, 251, 248, 0.5);
-  -webkit-backdrop-filter: saturate(180%) blur(16px);
-  backdrop-filter: saturate(180%) blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, rgba(252, 251, 248, 0.32), rgba(255, 255, 255, 0.2));
+  -webkit-backdrop-filter: saturate(205%) blur(28px);
+  backdrop-filter: saturate(205%) blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 30px 80px -40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.24);
 }
 @media (min-width: 768px) {
   [data-theme="modern"] .hero-panel {

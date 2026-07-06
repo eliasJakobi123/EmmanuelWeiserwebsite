@@ -1,0 +1,368 @@
+/*
+ * Modernes "Liquid Glass" Theme für die Website Emmanuel Weiser.
+ *
+ * Alle Regeln sind unter [data-theme="modern"] gekapselt. Das Attribut wird fest
+ * am <html>-Tag gesetzt (index.html). Wer zum ursprünglichen Design zurück möchte,
+ * entfernt einfach data-theme="modern" am <html>-Tag — dann greift keine einzige
+ * Regel aus dieser Datei mehr und die Website sieht exakt so aus wie zuvor.
+ *
+ * Design-Idee: warmes Weiß bleibt Grundton, Serifen-Überschriften bleiben. Neu sind
+ * dezente Glas-Flächen (frosted glass), weichere Rundungen, mehrschichtige Schatten
+ * und feine Verlaufs-Hintergründe, die der Seite Tiefe geben — modern, aber ruhig.
+ */
+
+[data-theme="modern"] {
+  --ew-ink: #16130f;
+  --ew-muted: #6b6459;
+  --ew-line: rgba(23, 19, 15, 0.08);
+  --ew-accent: #8a6d3b;              /* warmer Sand/Bronze-Akzent, sparsam */
+  --ew-glass-bg: rgba(255, 255, 255, 0.55);
+  --ew-glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --ew-glass-border: rgba(255, 255, 255, 0.65);
+  --ew-glass-blur: saturate(180%) blur(18px);
+  --ew-shadow-sm: 0 8px 24px -16px rgba(23, 19, 15, 0.35);
+  --ew-shadow-md: 0 18px 45px -24px rgba(23, 19, 15, 0.4);
+  --ew-shadow-lg: 0 30px 70px -30px rgba(23, 19, 15, 0.45);
+  --ew-radius: 18px;
+  --ew-radius-lg: 24px;
+}
+
+/* ---------- Grundton: warmes Weiß mit sehr dezenten Farbwolken ---------- */
+[data-theme="modern"] body {
+  background-color: #ffffff;
+  background-image:
+    radial-gradient(1100px 620px at 12% -8%, rgba(138, 109, 59, 0.06), transparent 60%),
+    radial-gradient(1000px 640px at 92% 4%, rgba(120, 130, 150, 0.05), transparent 62%);
+  background-attachment: fixed;
+  color: var(--ew-ink);
+}
+
+/* Glas-Utility (per Attribut wiederverwendet) */
+[data-theme="modern"] .ew-glass {
+  background: var(--ew-glass-bg);
+  -webkit-backdrop-filter: var(--ew-glass-blur);
+  backdrop-filter: var(--ew-glass-blur);
+  border: 1px solid var(--ew-glass-border);
+  box-shadow: var(--ew-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ---------- Navigation: schwebende Glas-Leiste ---------- */
+[data-theme="modern"] nav#site-nav {
+  background: transparent !important;
+  border-bottom: none !important;
+  padding: 0.7rem 1rem 0;
+}
+[data-theme="modern"] nav#site-nav.nav--shadow {
+  box-shadow: none;
+}
+[data-theme="modern"] nav#site-nav > div {
+  height: 4rem !important;
+  max-width: 64rem;
+  border-radius: 999px;
+  padding-left: 1.6rem;
+  padding-right: 1.4rem;
+  background: rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: var(--ew-shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: box-shadow 0.45s var(--motion-ease), background 0.45s var(--motion-ease);
+}
+[data-theme="modern"] nav#site-nav.nav--shadow > div {
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: var(--ew-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+[data-theme="modern"] .logo-classic {
+  letter-spacing: 0.02em;
+  background: linear-gradient(120deg, #16130f, #59493a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+[data-theme="modern"] .nav-link::after {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ew-accent);
+}
+[data-theme="modern"] .nav-link:hover {
+  color: var(--ew-accent);
+}
+/* Mobile-Menü als eigenständige Glas-Karte */
+[data-theme="modern"] #mobile-menu {
+  margin: 0.6rem 0.4rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  border-radius: var(--ew-radius);
+  background: rgba(255, 255, 255, 0.82) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: var(--ew-shadow-md);
+}
+
+/* ---------- Hero ---------- */
+[data-theme="modern"] .hero-panel {
+  max-width: 44rem;
+  padding: 2.4rem 2.2rem 2.6rem;
+  border-radius: var(--ew-radius-lg);
+  background: rgba(252, 251, 248, 0.5);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: saturate(180%) blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+@media (min-width: 768px) {
+  [data-theme="modern"] .hero-panel {
+    padding: 2.8rem 3rem 3rem;
+  }
+}
+[data-theme="modern"] .hero-line-grow {
+  height: 2px;
+  width: 3.5rem;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--ew-accent), transparent);
+}
+
+/* ---------- Sektions-Rahmen & Überschriften ---------- */
+[data-theme="modern"] section#current-project,
+[data-theme="modern"] section#works,
+[data-theme="modern"] section#support,
+[data-theme="modern"] section#contact {
+  position: relative;
+}
+[data-theme="modern"] section#current-project {
+  background: linear-gradient(180deg, #ffffff, #fbfaf8) !important;
+  border-color: var(--ew-line) !important;
+}
+[data-theme="modern"] section#support {
+  background: linear-gradient(180deg, #faf9f6, #f4f2ec) !important;
+  border-color: var(--ew-line) !important;
+}
+
+/* kleine Kapitel-Überschriften bekommen einen feinen Akzentstrich */
+[data-theme="modern"] section#current-project > div > h2,
+[data-theme="modern"] section#works .max-w-5xl > div > h2 {
+  position: relative;
+  padding-left: 0.95rem;
+}
+[data-theme="modern"] section#current-project > div > h2::before,
+[data-theme="modern"] section#works .max-w-5xl > div > h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 1.05em;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--ew-accent), #c9b48c);
+}
+
+/* Aktuelle Forschung: Text in leichter Glas-Karte */
+[data-theme="modern"] section#current-project .max-w-3xl {
+  background: var(--ew-glass-bg-strong);
+  -webkit-backdrop-filter: var(--ew-glass-blur);
+  backdrop-filter: var(--ew-glass-blur);
+  border: 1px solid var(--ew-glass-border);
+  border-radius: var(--ew-radius-lg);
+  box-shadow: var(--ew-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  padding: 2rem 2.2rem;
+}
+
+/* ---------- Arbeiten-Liste: Glas-Karten ---------- */
+[data-theme="modern"] #works-list-root {
+  gap: 1.25rem !important;
+}
+[data-theme="modern"] #works-list-root > div {
+  padding: 1.7rem 1.9rem !important;
+  border-radius: var(--ew-radius) !important;
+  border: 1px solid var(--ew-glass-border) !important;
+  background: var(--ew-glass-bg);
+  -webkit-backdrop-filter: var(--ew-glass-blur);
+  backdrop-filter: var(--ew-glass-blur);
+  box-shadow: var(--ew-shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition: transform 0.4s var(--motion-ease), box-shadow 0.4s var(--motion-ease),
+    border-color 0.4s var(--motion-ease);
+}
+[data-theme="modern"] #works-list-root > div:hover {
+  border-color: rgba(138, 109, 59, 0.35) !important;
+  box-shadow: var(--ew-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+[data-theme="modern"] #works-list-root > div .md\:col-span-2 h4 {
+  transition: color 0.35s ease;
+}
+[data-theme="modern"] #works-list-root > div:hover h4 {
+  color: var(--ew-accent) !important;
+}
+/* "Öffnen"-Spalte als kleiner Pfeil-Button-Look */
+[data-theme="modern"] #works-list-root > div > div:last-child {
+  color: var(--ew-accent) !important;
+  font-weight: 600;
+}
+
+/* ---------- Buttons (dunkel gefüllt) ---------- */
+[data-theme="modern"] a.bg-black,
+[data-theme="modern"] button.bg-black {
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #201b15, #3a2f24) !important;
+  box-shadow: 0 14px 30px -16px rgba(23, 19, 15, 0.7);
+  transition: transform 0.3s var(--motion-ease), box-shadow 0.3s var(--motion-ease),
+    filter 0.3s ease;
+}
+[data-theme="modern"] a.bg-black:hover,
+[data-theme="modern"] button.bg-black:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 20px 40px -18px rgba(23, 19, 15, 0.75);
+}
+/* Outline-Buttons (border-black) → glasige, runde Pillen */
+[data-theme="modern"] a.border-black,
+[data-theme="modern"] button.border-black {
+  border-radius: 999px !important;
+  border-color: rgba(23, 19, 15, 0.25) !important;
+  background: rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s var(--motion-ease), background 0.3s ease,
+    border-color 0.3s ease, color 0.3s ease;
+}
+[data-theme="modern"] a.border-black:hover,
+[data-theme="modern"] button.border-black:hover {
+  transform: translateY(-2px);
+  border-color: var(--ew-ink) !important;
+}
+
+/* ---------- Portrait im Unterstützungs-Bereich ---------- */
+[data-theme="modern"] .profile-img-container {
+  border-radius: var(--ew-radius-lg) !important;
+  box-shadow: var(--ew-shadow-lg);
+}
+
+/* ---------- Kontakt ---------- */
+[data-theme="modern"] section#contact .space-y-6 {
+  background: var(--ew-glass-bg-strong);
+  -webkit-backdrop-filter: var(--ew-glass-blur);
+  backdrop-filter: var(--ew-glass-blur);
+  border: 1px solid var(--ew-glass-border);
+  border-radius: var(--ew-radius-lg);
+  box-shadow: var(--ew-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  padding: 2rem 2.2rem;
+}
+[data-theme="modern"] #contact-admin-pin,
+[data-theme="modern"] #comment-modal input,
+[data-theme="modern"] #comment-modal textarea,
+[data-theme="modern"] #admin-article-modal input:not([type="file"]),
+[data-theme="modern"] #admin-article-modal textarea {
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Footer ---------- */
+[data-theme="modern"] footer {
+  background: linear-gradient(180deg, #ffffff, #faf9f6) !important;
+  border-color: var(--ew-line) !important;
+}
+
+/* ---------- Detailansicht der Arbeiten ---------- */
+[data-theme="modern"] #detail-view {
+  background: #ffffff;
+  background-image:
+    radial-gradient(1000px 560px at 8% -6%, rgba(138, 109, 59, 0.07), transparent 60%),
+    radial-gradient(900px 560px at 96% 2%, rgba(120, 130, 150, 0.06), transparent 62%);
+}
+/* Zurück-Button als glasige Pille */
+[data-theme="modern"] #detail-view > div > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  background: var(--ew-glass-bg-strong);
+  -webkit-backdrop-filter: var(--ew-glass-blur);
+  backdrop-filter: var(--ew-glass-blur);
+  border: 1px solid var(--ew-glass-border);
+  box-shadow: var(--ew-shadow-sm);
+  transition: transform 0.3s var(--motion-ease), box-shadow 0.3s var(--motion-ease),
+    color 0.3s ease;
+}
+[data-theme="modern"] #detail-view > div > button:hover {
+  transform: translateX(-3px);
+  color: var(--ew-accent) !important;
+}
+[data-theme="modern"] #detail-status .status-badge {
+  border-radius: 999px;
+  border-color: rgba(138, 109, 59, 0.4) !important;
+  color: var(--ew-accent) !important;
+  background: rgba(138, 109, 59, 0.06);
+  padding: 4px 14px;
+}
+/* Titel mit feinem Verlauf */
+[data-theme="modern"] #detail-title {
+  background: linear-gradient(120deg, #16130f, #4d3f30);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* PDF-Vorschau-Rahmen als Glas-Panel */
+[data-theme="modern"] #detail-preview-wrap {
+  border-radius: var(--ew-radius-lg) !important;
+  border: 1px solid var(--ew-glass-border) !important;
+  background: var(--ew-glass-bg) !important;
+  -webkit-backdrop-filter: var(--ew-glass-blur);
+  backdrop-filter: var(--ew-glass-blur);
+  box-shadow: var(--ew-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+[data-theme="modern"] #detail-pdf-frame-wrap {
+  background: transparent !important;
+}
+[data-theme="modern"] #detail-pdf-iframe {
+  border-radius: 14px !important;
+  border-color: var(--ew-line) !important;
+  box-shadow: var(--ew-shadow-sm);
+}
+/* Erweiterter Fließtext in ruhiger Glas-Karte */
+[data-theme="modern"] #detail-extended {
+  max-width: 52rem;
+  background: var(--ew-glass-bg-strong);
+  -webkit-backdrop-filter: var(--ew-glass-blur);
+  backdrop-filter: var(--ew-glass-blur);
+  border: 1px solid var(--ew-glass-border);
+  border-radius: var(--ew-radius-lg);
+  box-shadow: var(--ew-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  padding: 2.2rem 2.4rem;
+}
+@media (max-width: 640px) {
+  [data-theme="modern"] #detail-extended {
+    padding: 1.5rem 1.4rem;
+  }
+}
+/* Kommentare */
+[data-theme="modern"] .comment-card {
+  border-left: 2px solid rgba(138, 109, 59, 0.35);
+  background: var(--ew-glass-bg);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: 0 14px 14px 0;
+  padding: 1rem 1.2rem;
+  box-shadow: var(--ew-shadow-sm);
+}
+
+/* ---------- Modale als Glas ---------- */
+[data-theme="modern"] #comment-modal,
+[data-theme="modern"] #admin-article-modal {
+  background: rgba(23, 19, 15, 0.4);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+[data-theme="modern"] .modal-panel {
+  border-radius: var(--ew-radius-lg) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: var(--ew-shadow-lg) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="modern"] * {
+    transition-duration: 0.01ms !important;
+  }
+}

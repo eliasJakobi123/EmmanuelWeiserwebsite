@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="modern">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -75,7 +75,8 @@
             z-index: 100;
             overflow-y: auto;
         }
-        #comment-modal {
+        #comment-modal,
+        #admin-article-modal {
             display: none;
             position: fixed;
             inset: 0;
@@ -87,20 +88,24 @@
             overflow-y: auto;
             background: rgba(0, 0, 0, 0.45);
         }
-        #comment-modal.is-open {
+        #comment-modal.is-open,
+        #admin-article-modal.is-open {
             display: flex;
         }
-        #comment-modal .modal-panel {
+        #comment-modal .modal-panel,
+        #admin-article-modal .modal-panel {
             transform: translate3d(0, 14px, 0) scale(0.985);
             opacity: 0;
             transition: opacity 0.38s var(--motion-ease), transform 0.38s var(--motion-ease);
         }
-        #comment-modal.is-open .modal-panel {
+        #comment-modal.is-open .modal-panel,
+        #admin-article-modal.is-open .modal-panel {
             opacity: 1;
             transform: translate3d(0, 0, 0) scale(1);
         }
         @media (prefers-reduced-motion: reduce) {
-            #comment-modal .modal-panel {
+            #comment-modal .modal-panel,
+            #admin-article-modal .modal-panel {
                 transition: none;
                 opacity: 1;
                 transform: none;
@@ -273,30 +278,30 @@
             <button onclick="closeDetail()" class="text-xs uppercase tracking-widest mb-12 flex items-center hover:text-gray-400 transition">
                 ← Zurück zur Übersicht
             </button>
-            <div class="text-center mb-12 md:mb-16">
+            <div class="text-center mb-8 md:mb-10">
                 <div id="detail-status" class="mb-4"></div>
                 <h2 id="detail-title" class="text-2xl md:text-4xl serif mb-6 leading-tight max-w-4xl mx-auto"></h2>
-                <p id="detail-description" class="text-gray-600 leading-relaxed max-w-2xl mx-auto mb-8"></p>
-                <div id="detail-extended" class="hidden text-left text-sm text-gray-700 leading-relaxed max-w-3xl mx-auto space-y-5 mb-10"></div>
-                <div id="detail-download-wrap" class="flex justify-center">
-                    <a id="detail-download" href="#" class="inline-block text-xs uppercase tracking-widest border border-black px-10 py-4 hover:bg-black hover:text-white transition">
-                        Arbeit herunterladen (PDF)
-                    </a>
-                </div>
+                <p id="detail-description" class="text-gray-600 leading-relaxed max-w-2xl mx-auto"></p>
             </div>
-            <div id="detail-preview-wrap" class="w-full bg-gray-50 border border-gray-200 rounded shadow-inner overflow-hidden min-h-[520px]">
-                <div id="detail-preview-placeholder" class="min-h-[520px] flex items-center justify-center text-center p-12">
+            <div id="detail-preview-wrap" class="hidden w-full bg-gray-50 border border-gray-200 rounded shadow-inner overflow-hidden mb-8">
+                <div id="detail-preview-placeholder" class="min-h-[60vh] flex items-center justify-center text-center p-12">
                     <div>
                         <div class="text-[10px] uppercase tracking-widest text-gray-400 mb-4">Dokumentenvorschau</div>
                         <div class="w-20 h-[1px] bg-gray-200 mx-auto mb-6"></div>
-                        <p id="detail-preview-hint" class="serif italic text-gray-400 max-w-sm mx-auto">In der Live-Umgebung wird hier das Dokument eingebettet.</p>
+                        <p id="detail-preview-hint" class="serif italic text-gray-400 max-w-sm mx-auto">PDF wird geladen …</p>
                     </div>
                 </div>
-                <div id="detail-pdf-frame-wrap" class="hidden p-4 md:p-6 bg-stone-100/80">
+                <div id="detail-pdf-frame-wrap" class="hidden p-3 md:p-5 bg-stone-100/80">
                     <p id="detail-pdf-label" class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Dokumentenvorschau</p>
-                    <iframe id="detail-pdf-iframe" class="w-full min-h-[70vh] md:min-h-[75vh] border border-gray-200 rounded bg-white shadow-sm" title="PDF-Vorschau"></iframe>
+                    <iframe id="detail-pdf-iframe" class="w-full h-[70vh] md:h-[78vh] border border-gray-200 rounded bg-white shadow-sm" title="PDF-Vorschau"></iframe>
                 </div>
             </div>
+            <div id="detail-download-wrap" class="hidden flex justify-center mb-10 md:mb-12">
+                <a id="detail-download" href="#" class="inline-block text-xs uppercase tracking-widest border border-black px-10 py-4 hover:bg-black hover:text-white transition">
+                    Arbeit herunterladen (PDF)
+                </a>
+            </div>
+            <div id="detail-extended" class="hidden text-left text-sm text-gray-700 leading-relaxed max-w-3xl mx-auto space-y-5 mb-10"></div>
 
             <input type="hidden" id="detail-work-id" value="">
 
@@ -324,6 +329,44 @@
             <div class="flex flex-wrap gap-3">
                 <button type="button" id="comment-modal-submit" class="text-xs uppercase tracking-widest bg-black text-white px-8 py-3 hover:bg-stone-800 transition">Senden</button>
                 <button type="button" id="comment-modal-cancel" class="text-xs uppercase tracking-widest border border-gray-300 px-8 py-3 hover:border-black transition">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin: Artikel anlegen / bearbeiten -->
+    <div id="admin-article-modal" role="dialog" aria-modal="true" aria-labelledby="admin-article-heading">
+        <div class="modal-panel bg-white w-full max-w-2xl shadow-2xl border border-gray-100 p-8 md:p-10 relative max-h-[90vh] overflow-y-auto">
+            <h3 id="admin-article-heading" class="text-xl serif mb-6">Neuer Artikel</h3>
+            <div class="space-y-5 text-left">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2" for="admin-article-title">Überschrift</label>
+                    <input id="admin-article-title" type="text" maxlength="200" class="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black" placeholder="Titel der Arbeit">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2" for="admin-article-teaser">Kurzbeschreibung</label>
+                    <textarea id="admin-article-teaser" rows="3" maxlength="600" class="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black resize-y min-h-[72px]" placeholder="Ein Satz oder zwei für die Liste …"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2" for="admin-article-body">Langtext (Detailseite)</label>
+                    <textarea id="admin-article-body" rows="10" maxlength="120000" class="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black resize-y min-h-[200px] font-mono text-[13px] leading-relaxed" placeholder="Absätze durch Leerzeile trennen. Zeilenumbrüche innerhalb eines Absatzes sind möglich."></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2" for="admin-article-date">Datum (Anzeige links)</label>
+                    <input id="admin-article-date" type="text" maxlength="40" class="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black" placeholder="z. B. März 2026">
+                </div>
+                <div>
+                    <span id="admin-article-pdf-label" class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2">PDF</span>
+                    <p id="admin-article-pdf-current" class="hidden text-xs text-stone-600 mb-2"></p>
+                    <input type="file" id="admin-article-file" accept="application/pdf,.pdf" class="hidden" tabindex="-1" aria-hidden="true">
+                    <button type="button" id="admin-article-drop" class="w-full border-2 border-dashed border-stone-200 rounded-lg px-6 py-10 text-center text-sm text-stone-500 hover:border-stone-400 transition bg-stone-50/50">
+                        <span id="admin-article-drop-hint">PDF hierher ziehen oder klicken</span>
+                    </button>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-3 mt-10 pt-6 border-t border-gray-100">
+                <button type="button" id="admin-article-save" class="text-xs uppercase tracking-widest bg-black text-white px-8 py-3 hover:bg-stone-800 transition">Veröffentlichen</button>
+                <button type="button" id="admin-article-cancel" class="text-xs uppercase tracking-widest border border-gray-300 px-8 py-3 hover:border-black transition">Abbrechen</button>
+                <button type="button" id="admin-article-delete" class="hidden text-xs uppercase tracking-widest border border-red-200 text-red-700 px-8 py-3 hover:bg-red-50 transition ml-auto">Löschen</button>
             </div>
         </div>
     </div>
@@ -357,7 +400,7 @@
                 <span class="hero-animate-in text-xs uppercase tracking-[0.4em] text-stone-600 mb-5 block font-light">Eigenständige Forschung</span>
                 <h1 class="hero-animate-in text-5xl md:text-7xl mb-6 leading-tight tracking-tight text-black">Emmanuel Weiser</h1>
                 <div class="hero-line-grow w-12 h-[1px] bg-black mx-auto mb-6"></div>
-                <p class="hero-animate-in hero-lead italic serif">
+                <p class="hero-animate-in hero-lead italic serif inline-block max-w-full px-1 rounded-sm">
                     „Kritische Exegese und die Erschließung der Urchristlichen Texte in ihrem historischen Kontext.“
                 </p>
             </div>
@@ -380,38 +423,14 @@
     <!-- Neueste Arbeiten -->
     <section id="works" class="py-24 px-6">
         <div class="max-w-5xl mx-auto">
-            <div class="mb-16 border-b border-gray-100 pb-4">
+            <div class="mb-16 border-b border-gray-100 pb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
                 <h2 class="text-2xl uppercase tracking-widest font-light">Aktuelle Arbeiten</h2>
             </div>
-            <div class="grid gap-12">
-                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('matthaeus-judentum', 'Antijudaismus bei Mattheaus', '', 'Manuskript')">
-                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Februar 2026</div>
-                    <div class="md:col-span-2">
-                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors leading-snug">Antijudaismus bei Mattheaus</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Matthäusevangelium, narrative Polemik und das Verhältnis von innerjüdischer Auseinandersetzung zu Wirkungsgeschichte.</p>
-                        <p class="text-[10px] text-stone-400 leading-relaxed mt-3">Urheberrechtlich geschützt — Vervielfältigung nur mit Zustimmung des Urhebers.</p>
-                    </div>
-                    <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
-                </div>
-                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('taufe-jesu-synoptisch', 'Die Taufe Jesu', '', 'Manuskript')">
-                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Februar 2026</div>
-                    <div class="md:col-span-2">
-                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors leading-snug">Die Taufe Jesu</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Synoptischer Vergleich und außerkanonische Rezeption der Tauf- und Versuchungstradition.</p>
-                        <p class="text-[10px] text-stone-400 leading-relaxed mt-3">Urheberrechtlich geschützt — Vervielfältigung nur mit Zustimmung des Urhebers.</p>
-                    </div>
-                    <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
-                </div>
-                <div class="hover-lift group grid md:grid-cols-4 gap-4 items-start cursor-pointer" onclick="openDetail('lukas-identitaet-sendung', 'Soteriologie im Evangelium nach Lukas', '', 'Manuskript')">
-                    <div class="text-[10px] uppercase tracking-widest text-gray-400 pt-2 font-mono">Januar 2026</div>
-                    <div class="md:col-span-2">
-                        <h4 class="text-xl serif mb-2 group-hover:text-stone-500 transition-colors leading-snug">Soteriologie im Evangelium nach Lukas</h4>
-                        <p class="text-sm text-gray-500 leading-relaxed">Transformation der markinischen Vorlage in Tauferzählung und Erlösungslehre des Lukasevangeliums.</p>
-                        <p class="text-[10px] text-stone-400 leading-relaxed mt-3">Urheberrechtlich geschützt — Vervielfältigung nur mit Zustimmung des Urhebers.</p>
-                    </div>
-                    <div class="md:text-right text-xs uppercase tracking-widest text-stone-400">Öffnen</div>
-                </div>
+            <div id="works-admin-bar" class="hidden mb-10 flex flex-wrap items-center gap-4">
+                <button type="button" id="btn-new-article" class="text-xs uppercase tracking-widest bg-black text-white px-8 py-3 hover:bg-stone-800 transition shadow-sm">Neuer Artikel</button>
+                <span class="text-xs text-stone-400">Verwaltung aktiv — nur in diesem Browserfenster</span>
             </div>
+            <div id="works-list-root" class="grid gap-12"></div>
         </div>
     </section>
 
@@ -481,6 +500,17 @@
                     <p class="leading-relaxed">Rheinfelsstr. 22<br>55469 Simmern</p>
                     <p>E-Mail: <a href="mailto:emmanuelweiser@gmail.com" class="border-b border-gray-200 hover:border-black transition">emmanuelweiser@gmail.com</a></p>
                 </div>
+                <div id="contact-admin-unlock" class="mt-10 pt-8 border-t border-stone-100 max-w-md mx-auto md:mx-0 text-left">
+                    <label for="contact-admin-pin" class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2">Verwaltung</label>
+                    <div class="flex flex-wrap gap-2 items-stretch sm:items-center">
+                        <input type="password" id="contact-admin-pin" name="contact-admin-pin" autocomplete="off" maxlength="128" class="flex-1 min-w-[200px] border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:border-black" placeholder="Zugangscode">
+                        <button type="button" id="contact-admin-submit" class="text-xs uppercase tracking-widest bg-black text-white px-6 py-2.5 hover:bg-stone-800 transition shrink-0">Freischalten</button>
+                    </div>
+                    <p id="contact-admin-error" class="text-xs text-red-600 mt-2 hidden" role="status">Zugang verweigert.</p>
+                </div>
+                <p id="contact-admin-active" class="hidden mt-10 pt-8 border-t border-stone-100 max-w-md mx-auto md:mx-0 text-sm text-stone-500 text-left">
+                    Verwaltung aktiv — <a href="#works" class="text-black border-b border-stone-300 hover:border-black transition">zu den Arbeiten</a>
+                </p>
             </div>
         </div>
     </section>

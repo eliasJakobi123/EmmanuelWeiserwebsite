@@ -1,4 +1,8 @@
 import { inject } from '@vercel/analytics'
+import './theme-modern.css'
+import { WORK_LEGAL_FOOTER_HTML } from './legal-footer.js'
+import { getSupabase } from './supabase-client.js'
+import { initAdminWorks, loadCustomExtended, formatCustomBodyHtml } from './admin-works.js'
 
 inject()
 
@@ -30,6 +34,8 @@ function pdfEncodedPath(path) {
 
 /** Gleiche Kodierung wie der Browser für Pfade mit Leerzeichen/Umlauten (zuverlässiger als nur encodeURIComponent pro Segment). */
 function pdfAbsoluteUrl(path) {
+  if (!path) return path
+  if (/^https?:\/\//i.test(path)) return path
   try {
     return new URL(path, window.location.origin).href
   } catch {
@@ -48,6 +54,10 @@ function pdfCandidatePaths(path) {
     if (!p || seen.has(p)) return
     seen.add(p)
     out.push(p)
+  }
+  if (/^https?:\/\//i.test(path)) {
+    add(path)
+    return out
   }
   add(path)
   try {
@@ -75,8 +85,13 @@ function pdfCandidatePaths(path) {
 async function fetchPdfFirstOk(paths, signal) {
   for (const p of paths) {
     const fetchUrl = pdfAbsoluteUrl(p)
+    const sameOrigin = fetchUrl.startsWith(window.location.origin)
     try {
-      const res = await fetch(fetchUrl, { signal, credentials: 'same-origin' })
+      const res = await fetch(fetchUrl, {
+        signal,
+        credentials: sameOrigin ? 'same-origin' : 'omit',
+        mode: 'cors',
+      })
       if (res.ok) return { res, fetchUrl }
     } catch (e) {
       if (e?.name === 'AbortError') throw e
@@ -85,10 +100,7 @@ async function fetchPdfFirstOk(paths, signal) {
   throw new Error('pdf not found')
 }
 
-const PDF_PREVIEW_HINT_DEFAULT =
-  'In der Live-Umgebung wird hier das Dokument eingebettet.'
-const PDF_PREVIEW_HINT_ERROR =
-  'PDF konnte nicht geladen werden. Liegt die Datei im Ordner public/ und stimmt der Dateiname exakt (inkl. Umlaut ä vs. ae)?'
+const PDF_PREVIEW_HINT_DEFAULT = 'PDF wird geladen …'
 
 let pdfPreviewAbortController = null
 let pdfPreviewBlobUrl = null
@@ -111,15 +123,13 @@ function blobAsPdf(blob) {
   return new Blob([blob], { type: 'application/pdf' })
 }
 
-/** @type {{ fetchUrl: string, fileName: string } | null} */
-let detailPdfDownload = null
+function pdfEmbedSrc(path) {
+  const url = pdfAbsoluteUrl(path)
+  return url.includes('#') ? url : `${url}#view=FitH`
+}
 
-/** Einheitlicher Hinweis unter dem Abstract jeder Arbeit (Detailansicht). */
-const WORK_LEGAL_FOOTER_HTML = `
-<p class="pt-8 mt-8 border-t border-stone-200 text-[11px] text-stone-500 leading-relaxed">
-  Diese Arbeit ist urheberrechtlich geschützt. Vervielfältigung, Verbreitung oder öffentliche Wiedergabe — auch auszugsweise — nur mit Zustimmung des Urhebers.
-</p>
-`
+/** @type {{ fetchUrl?: string, fileName: string, blob?: Blob } | null} */
+let detailPdfDownload = null
 
 const TAUFFE_BODY_HTML = `
 <p class="text-sm text-stone-600 mb-4">Synoptischer Vergleich und außerkanonische Rezeption der Tauf- und Versuchungstradition</p>
@@ -197,13 +207,28 @@ const WORK_EXTENDED = {
 
 let commentReplyParentId = null
 
-/** Dynamischer Import verhindert, dass Vite Supabase bei leerem .env komplett entfernt. */
-async function getSupabase() {
-  const { createClient } = await import('@supabase/supabase-js')
-  const url = import.meta.env.VITE_SUPABASE_URL || ''
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
-  if (!url || !key) return null
-  return createClient(url, key)
+const UUID_V4 =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+async function loadRemotePublished(workId) {
+  if (!workId || !UUID_V4.test(workId)) return null
+  const supabase = await getSupabase()
+  if (!supabase) return null
+  const { data, error } = await supabase.from('site_published_works').select('*').eq('id', workId).single()
+  if (error || !data) return null
+  let pdf = null
+  if (data.pdf_storage_path) {
+    const { data: pub } = supabase.storage.from('work-pdfs').getPublicUrl(data.pdf_storage_path)
+    pdf = {
+      path: pub.publicUrl,
+      fileName: data.pdf_file_name || 'arbeit.pdf',
+      label: data.title,
+    }
+  }
+  return {
+    bodyHtml: formatCustomBodyHtml(data.body_text) + WORK_LEGAL_FOOTER_HTML,
+    pdf,
+  }
 }
 
 function handleImageError(element) {
@@ -255,8 +280,9 @@ function buildTree(rows) {
   return roots
 }
 
-/** @param {{ path: string, fileName: string, label: string } | null} pdf */
+/** @param {{ path: string, fileName: string, label: string, blob?: Blob } | null} pdf */
 function applyPdfDetailView(showPdf, pdf) {
+  const previewWrap = document.getElementById('detail-preview-wrap')
   const ph = document.getElementById('detail-preview-placeholder')
   const pdfWrap = document.getElementById('detail-pdf-frame-wrap')
   const iframe = document.getElementById('detail-pdf-iframe')
@@ -269,20 +295,33 @@ function applyPdfDetailView(showPdf, pdf) {
   if (showPdf && pdf) {
     const session = ++pdfPreviewSession
     teardownPdfPreview()
+    previewWrap?.classList.remove('hidden')
     if (hintEl) hintEl.textContent = PDF_PREVIEW_HINT_DEFAULT
+    if (pdfLabel) pdfLabel.textContent = `Dokumentenvorschau — ${pdf.label}`
+
+    if (pdf.blob) {
+      ph.classList.add('hidden')
+      pdfWrap.classList.remove('hidden')
+      pdfPreviewBlobUrl = URL.createObjectURL(blobAsPdf(pdf.blob))
+      iframe.src = pdfPreviewBlobUrl
+      dl.href = '#'
+      dl.setAttribute('download', pdf.fileName)
+      detailPdfDownload = { blob: pdf.blob, fileName: pdf.fileName }
+      dlWrap.classList.remove('hidden')
+      return
+    }
 
     const candidates = pdfCandidatePaths(pdf.path)
+    const directUrl = pdfEmbedSrc(candidates[0])
+
     ph.classList.add('hidden')
     pdfWrap.classList.remove('hidden')
-    iframe.src = 'about:blank'
+    iframe.src = directUrl
 
-    dl.href = '#'
+    dl.href = directUrl
     dl.setAttribute('download', pdf.fileName)
-    detailPdfDownload = null
-    dlWrap.classList.add('hidden')
-    if (pdfLabel) {
-      pdfLabel.textContent = `Dokumentenvorschau — ${pdf.label}`
-    }
+    detailPdfDownload = { fetchUrl: directUrl, fileName: pdf.fileName }
+    dlWrap.classList.remove('hidden')
 
     pdfPreviewAbortController = new AbortController()
     const { signal } = pdfPreviewAbortController
@@ -295,30 +334,22 @@ function applyPdfDetailView(showPdf, pdf) {
         const blob = await res.blob()
         if (session !== pdfPreviewSession) return
         if (signal.aborted) return
+        if (pdfPreviewBlobUrl) URL.revokeObjectURL(pdfPreviewBlobUrl)
         pdfPreviewBlobUrl = URL.createObjectURL(blobAsPdf(blob))
         iframe.src = pdfPreviewBlobUrl
         dl.href = fetchUrl
         detailPdfDownload = { fetchUrl, fileName: pdf.fileName }
-        dlWrap.classList.remove('hidden')
-        if (hintEl) hintEl.textContent = PDF_PREVIEW_HINT_DEFAULT
       } catch (e) {
         if (e?.name === 'AbortError' || signal.aborted) return
         if (session !== pdfPreviewSession) return
-        teardownPdfPreview()
-        iframe.src = ''
-        ph.classList.remove('hidden')
-        pdfWrap.classList.add('hidden')
-        dl.href = '#'
-        dl.removeAttribute('download')
-        dlWrap.classList.add('hidden')
-        detailPdfDownload = null
-        if (hintEl) hintEl.textContent = PDF_PREVIEW_HINT_ERROR
+        /* Direkte iframe-Einbettung bleibt aktiv (wichtig für Supabase-URLs ohne CORS-Fetch). */
       }
     })()
   } else {
     pdfPreviewSession += 1
     teardownPdfPreview()
     detailPdfDownload = null
+    previewWrap?.classList.add('hidden')
     if (hintEl) hintEl.textContent = PDF_PREVIEW_HINT_DEFAULT
     ph.classList.remove('hidden')
     pdfWrap.classList.add('hidden')
@@ -326,13 +357,11 @@ function applyPdfDetailView(showPdf, pdf) {
     dl.href = '#'
     dl.removeAttribute('download')
     dlWrap.classList.add('hidden')
-    if (pdfLabel) {
-      pdfLabel.textContent = 'Dokumentenvorschau'
-    }
+    if (pdfLabel) pdfLabel.textContent = 'Dokumentenvorschau'
   }
 }
 
-function openDetail(workId, title, description, status) {
+async function openDetail(workId, title, description, status) {
   document.getElementById('detail-work-id').value = workId
   document.getElementById('detail-title').innerText = title
   document.getElementById('detail-status').innerHTML =
@@ -341,7 +370,9 @@ function openDetail(workId, title, description, status) {
   const descEl = document.getElementById('detail-description')
   const extEl = document.getElementById('detail-extended')
 
-  const extended = WORK_EXTENDED[workId]
+  let extended = WORK_EXTENDED[workId]
+  if (!extended) extended = await loadRemotePublished(workId)
+  if (!extended) extended = await loadCustomExtended(workId)
   if (extended) {
     descEl.classList.add('hidden')
     descEl.textContent = ''
@@ -516,8 +547,29 @@ document.getElementById('detail-download')?.addEventListener('click', async (e) 
   const cfg = detailPdfDownload
   if (!cfg) return
   e.preventDefault()
+  if (cfg.blob) {
+    try {
+      const objUrl = URL.createObjectURL(blobAsPdf(cfg.blob))
+      const a = document.createElement('a')
+      a.href = objUrl
+      a.download = cfg.fileName
+      a.rel = 'noopener'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(objUrl)
+    } catch {
+      /* ignore */
+    }
+    return
+  }
+  if (!cfg.fetchUrl) return
   try {
-    const res = await fetch(cfg.fetchUrl, { credentials: 'same-origin' })
+    const sameOrigin = cfg.fetchUrl.startsWith(window.location.origin)
+    const res = await fetch(cfg.fetchUrl, {
+      credentials: sameOrigin ? 'same-origin' : 'omit',
+      mode: 'cors',
+    })
     if (!res.ok) throw new Error('fetch failed')
     const blob = await res.blob()
     const objUrl = URL.createObjectURL(blobAsPdf(blob))
@@ -534,12 +586,12 @@ document.getElementById('detail-download')?.addEventListener('click', async (e) 
   }
 })
 
-document.getElementById('btn-add-comment').addEventListener('click', () => {
+document.getElementById('btn-add-comment')?.addEventListener('click', () => {
   openCommentModal(null)
 })
-document.getElementById('comment-modal-cancel').addEventListener('click', closeCommentModal)
-document.getElementById('comment-modal-submit').addEventListener('click', submitComment)
-document.getElementById('comment-modal').addEventListener('click', (e) => {
+document.getElementById('comment-modal-cancel')?.addEventListener('click', closeCommentModal)
+document.getElementById('comment-modal-submit')?.addEventListener('click', submitComment)
+document.getElementById('comment-modal')?.addEventListener('click', (e) => {
   if (e.target === document.getElementById('comment-modal')) closeCommentModal()
 })
 document.addEventListener('keydown', (e) => {
@@ -593,6 +645,8 @@ document.querySelectorAll('section').forEach((section) => {
     })
   })
 })()
+
+void initAdminWorks()
 
 window.handleImageError = handleImageError
 window.openDetail = openDetail

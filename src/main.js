@@ -4,6 +4,8 @@ import { WORK_LEGAL_FOOTER_HTML } from './legal-footer.js'
 import { getSupabase } from './supabase-client.js'
 import { initAdminWorks, loadCustomExtended, formatCustomBodyHtml } from './admin-works.js'
 
+// Initialize Vercel Web Analytics
+// Automatically detects production/development based on environment
 inject()
 
 const COMMENT_WORK_IDS = new Set([

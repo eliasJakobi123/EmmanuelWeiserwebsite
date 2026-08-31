@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emmanuel Weiser | Neutestamentliche Forschung</title>
+    <title>Emmanuel Weiser | Historische Forschung &amp; Religionsphilosophie</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -339,6 +339,13 @@
             <h3 id="admin-article-heading" class="text-xl serif mb-6">Neuer Artikel</h3>
             <div class="space-y-5 text-left">
                 <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2" for="admin-article-category">Forschungsbereich</label>
+                    <select id="admin-article-category" class="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black">
+                        <option value="historische-forschung">Historische Forschung</option>
+                        <option value="religionsphilosophie">Religionsphilosophie</option>
+                    </select>
+                </div>
+                <div>
                     <label class="block text-[10px] uppercase tracking-widest text-gray-500 mb-2" for="admin-article-title">Überschrift</label>
                     <input id="admin-article-title" type="text" maxlength="200" class="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-black" placeholder="Titel der Arbeit">
                 </div>
@@ -400,9 +407,15 @@
                 <span class="hero-animate-in text-xs uppercase tracking-[0.4em] text-stone-600 mb-5 block font-light">Eigenständige Forschung</span>
                 <h1 class="hero-animate-in text-5xl md:text-7xl mb-6 leading-tight tracking-tight text-black">Emmanuel Weiser</h1>
                 <div class="hero-line-grow w-12 h-[1px] bg-black mx-auto mb-6"></div>
-                <p class="hero-animate-in hero-lead italic serif inline-block max-w-full px-1 rounded-sm">
-                    „Kritische Exegese und die Erschließung der Urchristlichen Texte in ihrem historischen Kontext.“
-                </p>
+            </div>
+            <div id="research-category-switcher" class="research-category-switcher" data-active-category="historische-forschung" role="tablist" aria-label="Forschungsbereich auswählen">
+                <span class="research-category-thumb" aria-hidden="true"></span>
+                <button type="button" class="research-category-tab is-active" data-research-category="historische-forschung" role="tab" aria-selected="true" aria-controls="current-project-historische-forschung">
+                    Historische Forschung
+                </button>
+                <button type="button" class="research-category-tab" data-research-category="religionsphilosophie" role="tab" aria-selected="false" aria-controls="current-project-religionsphilosophie">
+                    Religionsphilosophie
+                </button>
             </div>
         </div>
     </section>
@@ -411,10 +424,16 @@
     <section id="current-project" class="py-24 px-6 bg-white border-y border-stone-100">
         <div class="max-w-4xl mx-auto">
             <h2 class="text-2xl uppercase tracking-widest font-light mb-8">Aktuelle Forschung</h2>
-            <div class="max-w-3xl">
+            <div id="current-project-historische-forschung" class="research-category-panel max-w-3xl" data-category-panel="historische-forschung" role="tabpanel">
                 <h3 class="text-3xl md:text-4xl mb-6 serif leading-snug">Der synoptische Vergleich als Instrument zum jeweiligen Jesusbild</h3>
                 <p class="text-gray-700 leading-relaxed">
                     Dieses Projekt verortet sich methodisch in der redaktionskritischen Synoptikerexegese. Im Zentrum steht die Untersuchung, wie die Evangelisten – insbesondere Lukas – das markinische Grundmodell durch gezielte Auslassungen, Umstellungen und Umformulierungen theologisch neu akzentuieren.
+                </p>
+            </div>
+            <div id="current-project-religionsphilosophie" class="research-category-panel max-w-3xl hidden" data-category-panel="religionsphilosophie" role="tabpanel" hidden>
+                <h3 class="text-3xl md:text-4xl mb-6 serif leading-snug">Religionsphilosophische Forschung</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    In diesem Bereich erscheinen religionsphilosophische Untersuchungen und neue Arbeiten zu grundlegenden Fragen von Religion, Erkenntnis und Existenz.
                 </p>
             </div>
         </div>
@@ -518,7 +537,7 @@
     <!-- Footer -->
     <footer class="py-12 text-center bg-white border-t border-gray-100">
         <p class="text-[10px] text-gray-400 uppercase tracking-[0.3em] font-light">
-            &copy; 2026 Emmanuel Weiser &mdash; Neutestamentliche Forschung
+            &copy; 2026 Emmanuel Weiser &mdash; Historische Forschung &amp; Religionsphilosophie
         </p>
         <p class="mt-6 text-[10px] text-gray-400 tracking-wide">
             <a href="/impressum.html" class="hover:text-black transition">Impressum</a>

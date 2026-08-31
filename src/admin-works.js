@@ -18,13 +18,17 @@ const STORE = 'pdfBlobs'
 const PREFIX = 'ew-c-'
 const UUID_V4 =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const DEFAULT_CATEGORY = 'historische-forschung'
+const WORK_CATEGORIES = new Set([DEFAULT_CATEGORY, 'religionsphilosophie'])
 
 /** Klartext-PIN für Veröffentlichen/Löschen (RAM + sessionStorage, Tab zu) */
 let unlockedPin = ''
+let activeCategory = DEFAULT_CATEGORY
 
 const BUILTIN_ROWS = [
   {
     id: 'matthaeus-judentum',
+    category: DEFAULT_CATEGORY,
     dateLabel: 'Februar 2026',
     title: 'Antijudaismus bei Mattheaus',
     teaser:
@@ -33,6 +37,7 @@ const BUILTIN_ROWS = [
   },
   {
     id: 'taufe-jesu-synoptisch',
+    category: DEFAULT_CATEGORY,
     dateLabel: 'Februar 2026',
     title: 'Die Taufe Jesu',
     teaser:
@@ -41,6 +46,7 @@ const BUILTIN_ROWS = [
   },
   {
     id: 'lukas-identitaet-sendung',
+    category: DEFAULT_CATEGORY,
     dateLabel: 'Januar 2026',
     title: 'Soteriologie im Evangelium nach Lukas',
     teaser:
@@ -53,6 +59,10 @@ function esc(s) {
   const d = document.createElement('div')
   d.textContent = s == null ? '' : String(s)
   return d.innerHTML
+}
+
+function normalizeCategory(value) {
+  return WORK_CATEGORIES.has(value) ? value : DEFAULT_CATEGORY
 }
 
 export function formatCustomBodyHtml(raw) {
@@ -210,22 +220,30 @@ async function fetchRemoteRows() {
   const supabase = await getSupabase()
   if (!supabase) return []
   try {
-    const query = supabase
-      .from('site_published_works')
-      .select('id, title, teaser, date_label, created_at')
-      .order('created_at', { ascending: false })
-    const { data, error } = await Promise.race([
-      query,
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('site_published_works timeout')), REMOTE_FETCH_MS),
-      ),
-    ])
+    const runQuery = (columns) =>
+      Promise.race([
+        supabase
+          .from('site_published_works')
+          .select(columns)
+          .order('created_at', { ascending: false }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('site_published_works timeout')), REMOTE_FETCH_MS),
+        ),
+      ])
+    let { data, error } = await runQuery('id, title, teaser, date_label, category, created_at')
+    /* Während einer gestaffelten Bereitstellung bleiben alte Datenbanken lesbar. */
+    if (error) {
+      const legacyResult = await runQuery('id, title, teaser, date_label, created_at')
+      data = legacyResult.data
+      error = legacyResult.error
+    }
     if (error || !data?.length) return []
     const builtinIds = new Set(BUILTIN_ROWS.map((r) => r.id))
     return data
       .filter((row) => row.id && !builtinIds.has(row.id))
       .map((row) => ({
         id: row.id,
+        category: normalizeCategory(row.category),
         dateLabel: row.date_label || '',
         title: row.title,
         teaser: row.teaser,
@@ -246,6 +264,34 @@ function updateAdminChrome() {
   if (active) active.classList.toggle('hidden', !isAdminSession())
 }
 
+function updateCategoryChrome() {
+  const switcher = document.getElementById('research-category-switcher')
+  if (switcher) switcher.dataset.activeCategory = activeCategory
+  document.querySelectorAll('[data-research-category]').forEach((button) => {
+    const selected = button.dataset.researchCategory === activeCategory
+    button.classList.toggle('is-active', selected)
+    button.setAttribute('aria-selected', String(selected))
+  })
+  document.querySelectorAll('[data-category-panel]').forEach((panel) => {
+    const selected = panel.dataset.categoryPanel === activeCategory
+    panel.classList.toggle('hidden', !selected)
+    panel.hidden = !selected
+  })
+}
+
+function setupCategorySwitcher() {
+  document.querySelectorAll('[data-research-category]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextCategory = normalizeCategory(button.dataset.researchCategory)
+      if (nextCategory === activeCategory) return
+      activeCategory = nextCategory
+      updateCategoryChrome()
+      void renderWorksList()
+    })
+  })
+  updateCategoryChrome()
+}
+
 export async function renderWorksList() {
   const root = document.getElementById('works-list-root')
   if (!root) return
@@ -253,10 +299,25 @@ export async function renderWorksList() {
   const remote = await fetchRemoteRows()
   const legacyLocal = readMetaList()
     .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
-    .map((c) => ({ ...c, custom: true, remote: false, legacy: true }))
+    .map((c) => ({
+      ...c,
+      category: normalizeCategory(c.category),
+      custom: true,
+      remote: false,
+      legacy: true,
+    }))
   const admin = isAdminSession()
   /* Neueste DB-Arbeiten zuerst (fetchRemoteRows: created_at desc), danach feste Built-ins, zuletzt lokale Legacy. */
-  const rows = [...remote, ...BUILTIN_ROWS, ...legacyLocal]
+  const rows = [...remote, ...BUILTIN_ROWS, ...legacyLocal].filter(
+    (row) => normalizeCategory(row.category) === activeCategory,
+  )
+
+  if (!rows.length) {
+    const empty = document.createElement('p')
+    empty.className = 'text-sm text-stone-500 italic py-6'
+    empty.textContent = 'In diesem Bereich sind noch keine Arbeiten veröffentlicht.'
+    root.appendChild(empty)
+  }
 
   rows.forEach((row) => {
     const wrap = document.createElement('div')
@@ -401,9 +462,10 @@ async function openArticleEditor(id) {
   const teaser = document.getElementById('admin-article-teaser')
   const body = document.getElementById('admin-article-body')
   const date = document.getElementById('admin-article-date')
+  const category = document.getElementById('admin-article-category')
   const dropHint = document.getElementById('admin-article-drop-hint')
   const h = document.getElementById('admin-article-heading')
-  if (!m || !title || !teaser || !body || !date || !h || !dropHint) return
+  if (!m || !title || !teaser || !body || !date || !category || !h || !dropHint) return
 
   const fileIn = document.getElementById('admin-article-file')
   if (fileIn) fileIn.value = ''
@@ -425,6 +487,7 @@ async function openArticleEditor(id) {
     teaser.value = data.teaser
     body.value = data.body_text || ''
     date.value = data.date_label || ''
+    category.value = normalizeCategory(data.category)
     editingPdfFileName = data.pdf_file_name || ''
     setPdfEditUi('edit', editingPdfFileName)
   } else if (id && id.startsWith(PREFIX)) {
@@ -435,6 +498,7 @@ async function openArticleEditor(id) {
     teaser.value = meta.teaser
     body.value = meta.bodyText
     date.value = meta.dateLabel || ''
+    category.value = normalizeCategory(meta.category)
     editingPdfFileName = meta.pdfFileName || ''
     setPdfEditUi('edit', editingPdfFileName)
   } else {
@@ -443,6 +507,7 @@ async function openArticleEditor(id) {
     teaser.value = ''
     body.value = ''
     date.value = defaultDateLabel()
+    category.value = activeCategory
     setPdfEditUi('new')
   }
 
@@ -541,6 +606,7 @@ async function publishRemoteViaSupabase() {
   const teaser = document.getElementById('admin-article-teaser')?.value?.trim()
   const bodyText = document.getElementById('admin-article-body')?.value?.trim()
   const dateLabel = document.getElementById('admin-article-date')?.value?.trim()
+  const category = normalizeCategory(document.getElementById('admin-article-category')?.value)
   if (!title || !teaser) {
     alert('Bitte Überschrift und Kurzbeschreibung ausfüllen.')
     return false
@@ -554,6 +620,7 @@ async function publishRemoteViaSupabase() {
       p_teaser: teaser,
       p_body_text: bodyText || '',
       p_date_label: dateLabel || '',
+      p_category: category,
     })
     if (eMeta) {
       alert(eMeta.message || 'Speichern fehlgeschlagen.')
@@ -608,6 +675,7 @@ async function publishRemoteViaSupabase() {
     p_teaser: teaser,
     p_body_text: bodyText || '',
     p_date_label: dateLabel || '',
+    p_category: category,
   })
   if (eCreate || !workId) {
     alert(eCreate?.message || 'Anlegen fehlgeschlagen. Migration publish-RPC in Supabase ausgeführt?')
@@ -645,6 +713,7 @@ async function publishArticle() {
   const teaser = document.getElementById('admin-article-teaser')?.value?.trim()
   const bodyText = document.getElementById('admin-article-body')?.value?.trim()
   const dateLabel = document.getElementById('admin-article-date')?.value?.trim()
+  const category = normalizeCategory(document.getElementById('admin-article-category')?.value)
   if (!title || !teaser) {
     alert('Bitte Überschrift und Kurzbeschreibung ausfüllen.')
     return
@@ -669,6 +738,8 @@ async function publishArticle() {
     return
   }
 
+  activeCategory = category
+  updateCategoryChrome()
   closeArticleModal()
   await renderWorksList()
 }
@@ -680,6 +751,7 @@ async function publishLocalLegacy() {
   const teaser = document.getElementById('admin-article-teaser')?.value?.trim()
   const bodyText = document.getElementById('admin-article-body')?.value?.trim()
   const dateLabel = document.getElementById('admin-article-date')?.value?.trim()
+  const category = normalizeCategory(document.getElementById('admin-article-category')?.value)
   const id = editingArticleId
   const list = readMetaList()
   const idx = list.findIndex((x) => x.id === editingArticleId)
@@ -700,10 +772,13 @@ async function publishLocalLegacy() {
     teaser,
     bodyText: bodyText || '',
     dateLabel: dateLabel || defaultDateLabel(),
+    category,
     pdfFileName,
     updatedAt: Date.now(),
   }
   localStorage.setItem(LS_META, JSON.stringify(list))
+  activeCategory = category
+  updateCategoryChrome()
   closeArticleModal()
   await renderWorksList()
 }
@@ -747,6 +822,7 @@ export async function initAdminWorks() {
   /* Listener sofort — nicht hinter await renderWorksList() (Supabase kann hängen). */
   setupContactAdminPin()
   wireDropZone()
+  setupCategorySwitcher()
   updateAdminChrome()
 
   document.getElementById('btn-new-article')?.addEventListener('click', () => void openArticleEditor(null))

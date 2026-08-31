@@ -124,6 +124,69 @@
   background: linear-gradient(90deg, transparent, var(--ew-accent), transparent);
 }
 
+/* Forschungsbereiche: flüssiger Segment-Switch unter dem Hero */
+[data-theme="modern"] .research-category-switcher {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  width: min(100%, 38rem);
+  margin: 0.8rem auto 0;
+  padding: 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.68);
+  -webkit-backdrop-filter: saturate(190%) blur(22px);
+  backdrop-filter: saturate(190%) blur(22px);
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  box-shadow: var(--ew-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+[data-theme="modern"] .research-category-thumb {
+  position: absolute;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  left: 0.4rem;
+  width: calc((100% - 0.8rem) / 2);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #201b15, #3a2f24);
+  box-shadow: 0 10px 24px -14px rgba(23, 19, 15, 0.8);
+  pointer-events: none;
+  transition: transform 0.42s var(--motion-ease);
+  will-change: transform;
+}
+[data-theme="modern"] .research-category-switcher[data-active-category="religionsphilosophie"] .research-category-thumb {
+  transform: translateX(100%);
+}
+[data-theme="modern"] .research-category-tab {
+  position: relative;
+  z-index: 1;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  color: #5f584f;
+  background: transparent;
+  font-size: 0.65rem;
+  line-height: 1.35;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: color 0.35s var(--motion-ease);
+}
+[data-theme="modern"] .research-category-tab:hover {
+  color: var(--ew-ink);
+}
+[data-theme="modern"] .research-category-tab.is-active {
+  color: #fff;
+}
+[data-theme="modern"] .research-category-tab:focus-visible {
+  outline: 2px solid var(--ew-accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="modern"] .research-category-thumb {
+    transition: none;
+  }
+}
+
 /* ---------- Sektions-Rahmen & Überschriften ---------- */
 [data-theme="modern"] section#current-project,
 [data-theme="modern"] section#works,
@@ -253,6 +316,7 @@
 [data-theme="modern"] #comment-modal input,
 [data-theme="modern"] #comment-modal textarea,
 [data-theme="modern"] #admin-article-modal input:not([type="file"]),
+[data-theme="modern"] #admin-article-modal select,
 [data-theme="modern"] #admin-article-modal textarea {
   border-radius: 12px !important;
   background: rgba(255, 255, 255, 0.7);

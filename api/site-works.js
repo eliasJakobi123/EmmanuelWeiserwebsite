@@ -78,10 +78,14 @@ module.exports = async (req, res) => {
     const teaser = String(body.teaser || '').trim()
     const bodyText = String(body.bodyText || '').trim()
     const dateLabel = String(body.dateLabel || '').trim()
+    const category = String(body.category || 'historische-forschung').trim()
     const pdfFileName = safeFileName(body.pdfFileName)
 
     if (!title || !teaser) {
       return res.status(400).json({ error: 'Titel und Kurzbeschreibung erforderlich' })
+    }
+    if (!['historische-forschung', 'religionsphilosophie'].includes(category)) {
+      return res.status(400).json({ error: 'Ungültiger Forschungsbereich' })
     }
 
     if (action === 'create') {
@@ -100,6 +104,7 @@ module.exports = async (req, res) => {
           teaser,
           body_text: bodyText,
           date_label: dateLabel,
+          category,
           pdf_file_name: pdfFileName,
         })
         .select('id')
@@ -164,6 +169,7 @@ module.exports = async (req, res) => {
         teaser,
         body_text: bodyText,
         date_label: dateLabel,
+        category,
         updated_at: new Date().toISOString(),
       }
       if (body.pdfBase64) {
